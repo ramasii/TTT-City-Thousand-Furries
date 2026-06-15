@@ -8,7 +8,9 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
     public Transform orientation;
-    public float moveSpeed = 5f;
+    float desiredMoveSpeed = 5f;
+    public float runningSpeed;
+    public float wallRunningSpeed;
     public float groundDrag;
     public float jumpForce;
     public float jumpCooldown;
@@ -24,6 +26,16 @@ public class PlayerMovement : MonoBehaviour
     float verticalInput;
     Vector3 moveDirection;
     Rigidbody rb;
+    [Header("State")]
+    public MovementState state;
+    public bool wallRunning;
+
+    public enum MovementState
+    {
+        runnning,
+        wallRunning,
+        air
+    }
 
     private void Start()
     {
@@ -38,6 +50,7 @@ public class PlayerMovement : MonoBehaviour
         grounded = Physics.Raycast(rayOrigin, Vector3.down, playerHeight * 0.5f + checkExtend, groundLayer);
 
         SpeedControl();
+        StateHandler();
 
         // tangani drag saat di tanah
         if (grounded)
@@ -79,6 +92,27 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void StateHandler()
+    {
+        // mode wall running
+        if(wallRunning)
+        {
+            state = MovementState.wallRunning;
+            desiredMoveSpeed = wallRunningSpeed;
+        }
+
+        // mode running
+        if(grounded)
+        {
+            state = MovementState.runnning;
+            desiredMoveSpeed = runningSpeed;
+        }
+        else
+        {
+            state = MovementState.air;
+        }
+    }
+
     void MovePlayer()
     {
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
@@ -86,22 +120,22 @@ public class PlayerMovement : MonoBehaviour
         // gerak di tanah
         if(grounded)
         {
-            rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+            rb.AddForce(moveDirection.normalized * desiredMoveSpeed * 10f, ForceMode.Force);
         }
         
         // gerak di udara
         else if(!grounded)
         {
-            rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+            rb.AddForce(moveDirection.normalized * desiredMoveSpeed * 10f * airMultiplier, ForceMode.Force);
         }
     }
 
     void SpeedControl()
     {
         Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        if (flatVel.magnitude > moveSpeed)
+        if (flatVel.magnitude > desiredMoveSpeed)
         {
-            Vector3 limitedVel = flatVel.normalized * moveSpeed;
+            Vector3 limitedVel = flatVel.normalized * desiredMoveSpeed;
             rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
         }
     }
