@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
+    public Transform orientation;
     public float moveSpeed = 5f;
     public float groundDrag;
     public float jumpForce;
@@ -80,7 +81,7 @@ public class PlayerMovement : MonoBehaviour
 
     void MovePlayer()
     {
-        moveDirection = transform.forward * verticalInput + transform.right * horizontalInput;
+        moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
         // gerak di tanah
         if(grounded)
