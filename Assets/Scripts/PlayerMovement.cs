@@ -1,105 +1,119 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
+/// <summary>
+/// This script handles the player's movement using Rigidbody physics. It allows the player to move in four directions (forward, backward, left, right) based on input from the keyboard. The movement is smooth and physics-based, giving a more realistic feel to the player's movement. The Rigidbody's rotation is frozen to prevent unwanted rotations due to physics interactions.
+/// </summary>
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float speed = 5f;
-    [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private Animator animator;
+    [Header("Movement")]
+    public float moveSpeed = 5f;
+    public float groundDrag;
+    public float jumpForce;
+    public float jumpCooldown;
+    public float airMultiplier;
+    bool readyToJump = true;
+
+    [Header("GroundCheck")]
+    public float playerHeight;
+    public float checkExtend;
+    public LayerMask groundLayer;
+    [SerializeField] bool grounded;
+    float horizontalInput;
+    float verticalInput;
+    Vector3 moveDirection;
     Rigidbody rb;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        if(animator == null)
+        rb.freezeRotation = true; // Mencegah karakter berputar akibat interaksi fisika
+    }
+
+    void Update()
+    {
+        // cek grounded
+        Vector3 rayOrigin = transform.position + Vector3.up * playerHeight;
+        grounded = Physics.Raycast(rayOrigin, Vector3.down, playerHeight * 0.5f + checkExtend, groundLayer);
+
+        SpeedControl();
+
+        // tangani drag saat di tanah
+        if (grounded)
         {
-            animator = GetComponent<Animator>();
+            rb.linearDamping = groundDrag;
+        }
+        else
+        {
+            rb.linearDamping = 0;
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnDrawGizmosSelected()
     {
-        if (Input.GetButtonDown("Jump"))
-        {
-            Jump();
-        }
+        Gizmos.color = Color.red;
+        Vector3 rayOrigin = transform.position + Vector3.up * playerHeight;
+        Gizmos.DrawLine(rayOrigin, rayOrigin + Vector3.down * (playerHeight * 0.5f + checkExtend));
     }
 
     void FixedUpdate()
     {
-        // Move is called in Update to ensure input is responsive, but physics updates are handled in FixedUpdate
-        Move();
+        MovePlayer();
     }
 
-    public void Move()
+    public void OnMove(InputAction.CallbackContext value)
     {
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
-        Vector3 input = new Vector3(horizontal, 0, vertical).normalized;
-        Vector3 moveDirection = MakeRelativeToCamera(input);
+        Vector2 input = value.ReadValue<Vector2>();
+        horizontalInput = input.x;
+        verticalInput = input.y;
+    }
+
+    public void OnJump(InputAction.CallbackContext value)
+    {
+        if (value.started && readyToJump && grounded)
+        {
+            readyToJump = false;
+            Jump();
+            Invoke(nameof(ResetJump), jumpCooldown);
+        }
+    }
+
+    void MovePlayer()
+    {
+        moveDirection = transform.forward * verticalInput + transform.right * horizontalInput;
+
+        // gerak di tanah
+        if(grounded)
+        {
+            rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+        }
         
-        Vector3 targetVelocity = moveDirection * speed;
-        rb.linearVelocity = new Vector3(targetVelocity.x, rb.linearVelocity.y, targetVelocity.z);
-
-        animator.SetFloat("Mag", input.magnitude);
-        RotateTowardsMovementDirection(moveDirection);
-        SetAnimationSpeed("Running", input.magnitude);
-    }
-
-    public void Jump()
-    {
-        if (animator.GetBool("Grounded"))
+        // gerak di udara
+        else if(!grounded)
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
         }
     }
 
-    Vector3 MakeRelativeToCamera(Vector3 input)
+    void SpeedControl()
     {
-        Vector3 forward = Camera.main.transform.forward;
-        forward.y = 0;
-        forward.Normalize();
-        Vector3 right = Camera.main.transform.right;
-        right.y = 0;
-        right.Normalize();
-        return forward * input.z + right * input.x;
-    }
-
-    void RotateTowardsMovementDirection(Vector3 direction)
-    {
-        if (direction.magnitude > 0.01f)
+        Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        if (flatVel.magnitude > moveSpeed)
         {
-            // Calculate target rotation
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-            // Smoothly rotate towards the target direction
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+            Vector3 limitedVel = flatVel.normalized * moveSpeed;
+            rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
         }
     }
 
-    void SetAnimationSpeed(string animName, float speed)
+    void Jump()
     {
-        if (animator.GetAnimatorTransitionInfo(0).IsName(animName) || animator.GetCurrentAnimatorStateInfo(0).IsName(animName))
-        {
-            animator.speed = speed;
-        }else{
-            animator.speed = 1f;
-        }
+        // reset y vel
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 
-    void OnTriggerEnter(Collider other)
+    void ResetJump()
     {
-        if (other.CompareTag("Ground"))
-        {
-            animator.SetBool("Grounded", true);
-        }
-    }
-    
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Ground"))
-        {
-            animator.SetBool("Grounded", false);
-        }
+        readyToJump = true;
     }
 }
