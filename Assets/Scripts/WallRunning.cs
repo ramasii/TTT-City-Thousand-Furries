@@ -7,6 +7,8 @@ public class WallRunning : MonoBehaviour
     public LayerMask wallLayer;
     public LayerMask groundLayerMask;
     public float wallRunForce;
+    public float wallJumpUpForce;
+    public float wallJumpSideForce;
     public float maxWallRunTime;
     public float wallClimbSpeed;
     float wallRunTimer;
@@ -16,19 +18,35 @@ public class WallRunning : MonoBehaviour
     float verticalInput;
     bool upwardsRunning;
     bool downwardsRunning;
+    bool jumpInput;
 
     [Header("Detection")]
     public float wallCheckDistance;
     public float minJumpHeight;
+    public float detectionHeight;
     RaycastHit leftWallHit;
     RaycastHit rightWallHit;
+    RaycastHit frontWallHit;
     bool wallLeft;
     bool wallRight;
+    bool wallFront;
+    Vector3 lastNormal; // untuk menyimpan normal dinding terakhir yang disentuh
+    Transform lastWall; // untuk menyimpan transform dinding terakhir yang disentuh
 
     [Header("References")]
     public Transform orientation;
     PlayerMovement pm;
     Rigidbody rb;
+    public ThirdPersonCam thirdPersonCam;
+
+    [Header("Exiting")]
+    bool exitingWall;
+    public float exitWallTime;
+    float exitWallTimer;
+
+    [Header("Gravity")]
+    public bool useGravity;
+    public float gravityCounterForce;
 
     private void Start()
     {
@@ -40,6 +58,12 @@ public class WallRunning : MonoBehaviour
     {
         CheckForWall();
         StateMachine();
+
+        if(!AboveGround())
+        {
+            lastNormal = Vector3.zero; // reset normal dinding terakhir jika menyentuh tanah
+            lastWall = null; // reset transform dinding terakhir jika menyentuh tanah
+        }
     }
 
     void FixedUpdate()
@@ -52,24 +76,94 @@ public class WallRunning : MonoBehaviour
 
     void CheckForWall()
     {
-        wallRight = Physics.Raycast(transform.position, orientation.right, out rightWallHit, wallCheckDistance, wallLayer);
-        wallLeft = Physics.Raycast(transform.position, -orientation.right, out leftWallHit, wallCheckDistance, wallLayer);
+        Vector3 rayOffset = orientation.up * detectionHeight;
+        Vector3 rayOrigin = transform.position + rayOffset;
+        wallRight = Physics.Raycast(rayOrigin, orientation.right + rayOffset, out rightWallHit, wallCheckDistance, wallLayer);
+        wallLeft = Physics.Raycast(rayOrigin, -orientation.right + rayOffset, out leftWallHit, wallCheckDistance, wallLayer);
+        wallFront = Physics.Raycast(rayOrigin, (orientation.forward * 0.75f) + rayOffset, out frontWallHit, wallCheckDistance, wallLayer);
     }
 
     bool AboveGround()
     {
-        return !Physics.Raycast(transform.position, Vector3.down, minJumpHeight, groundLayerMask);
+        return !Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, minJumpHeight, groundLayerMask);
+    }
+
+    // gizmos raycast aboveground
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Vector3 rayOffset = orientation.up * detectionHeight;
+        Vector3 rayOrigin = transform.position + rayOffset;
+        Gizmos.DrawRay(rayOrigin, orientation.right * wallCheckDistance);
+        Gizmos.DrawRay(rayOrigin, -orientation.right * wallCheckDistance);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(transform.position + Vector3.up * 0.5f, Vector3.down * minJumpHeight);
     }
 
     void StateMachine()
     {
-        // state 1 -  wall running
-        if((wallLeft || wallRight) && verticalInput > 0 && AboveGround())
+        // ambil normal dinding yang sedang disentuh
+        Vector3 currentNormal = Vector3.zero;
+        Transform currentWall = null;
+        if (wallRight) 
         {
-            if(!pm.wallRunning) StartWallRun();
+            currentNormal = rightWallHit.normal;
+            currentWall = rightWallHit.transform;
+        }
+        else if (wallLeft) 
+        {
+            currentNormal = leftWallHit.normal;
+            currentWall = leftWallHit.transform;
         }
 
-        // state 2 - not wall running
+        bool isNewWall = currentWall != null && currentWall != lastWall;
+
+        // state 1 -  wall running
+        if((wallLeft || wallRight) && verticalInput > 0 && AboveGround() && !exitingWall)
+        {
+            if(!pm.wallRunning && isNewWall) StartWallRun();
+
+            if (pm.wallRunning)
+            {
+                // Terus perbarui memori dinding selama karakter masih menempel. 
+                // Ini mencegah bug jika karakter meluncur ke objek dinding lain di tengah wallrun.
+                lastNormal = currentNormal;
+                lastWall = currentWall;
+
+                // wallrun timer
+                if(wallRunTimer > 0) wallRunTimer -= Time.deltaTime;
+
+                if(wallRunTimer <= 0 && pm.wallRunning)
+                {
+                    exitingWall = true;
+                    exitWallTimer = exitWallTime;
+                }
+
+                // wall jump
+                if(jumpInput) WallJump();
+            }
+
+        }
+
+        // state 2 - exiting wall
+        else if(exitingWall)
+        {
+            if(pm.wallRunning) StopWallRun();
+
+            if(exitWallTimer > 0)
+            {
+                exitWallTimer -= Time.deltaTime;
+            }
+
+            if(exitWallTimer <= 0)
+            {
+                exitingWall = false;
+                // exitWallTimer = exitWallTime;
+            }
+        }
+
+        // state 3 - not wall running
         else
         {
             if(pm.wallRunning) StopWallRun();
@@ -79,12 +173,25 @@ public class WallRunning : MonoBehaviour
     void StartWallRun()
     {
         pm.wallRunning = true;
+        wallRunTimer = maxWallRunTime;
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+
+        // terapkan efek kamera
+        thirdPersonCam.DoFov(60f);
+        if(wallRight) thirdPersonCam.DoDutch(6f);
+        else if(wallLeft) thirdPersonCam.DoDutch(-6f);
+
+        // terapkan player obj tilt
+        if(wallRight) pm.DoTiltPlayerObj(15f);
+        else if(wallLeft) pm.DoTiltPlayerObj(-15f);
+
+        // simpan normal dinding terakhir yang disentuh
+        // lastNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
     }
 
     void WallRunningMovement()
     {
-        rb.useGravity = false;
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        rb.useGravity = useGravity;
 
         Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
         Vector3 wallForward = Vector3.Cross(wallNormal, transform.up);
@@ -98,12 +205,15 @@ public class WallRunning : MonoBehaviour
         // force ke depan
         rb.AddForce(wallForward * wallRunForce, ForceMode.Force);
 
+        // deteksi apakah karakter tersangkut di sudut antara dua dinding (misalnya, di dalam ceruk)
+        bool isStruckInCorner = wallFront || (wallLeft && wallRight);
+
         // force ke atas/bawah
-        if(upwardsRunning)
+        if(upwardsRunning && !isStruckInCorner)
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, wallClimbSpeed, rb.linearVelocity.z);
         }
-        if(downwardsRunning)
+        if(downwardsRunning && !isStruckInCorner)
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, -wallClimbSpeed, rb.linearVelocity.z);
         }
@@ -113,12 +223,42 @@ public class WallRunning : MonoBehaviour
         {
             rb.AddForce(-wallNormal * 100, ForceMode.Force);
         }
+
+        // kurangi gravitasi
+        if(useGravity)
+        {
+            rb.AddForce(transform.up * gravityCounterForce, ForceMode.Force);
+        }
     }
 
     void StopWallRun()
     {
         pm.wallRunning = false;
-        rb.useGravity = true;
+
+        // reset efek kamera
+        thirdPersonCam.DoFov(50f);
+        thirdPersonCam.DoDutch(0f);
+        // reset player obj tilt
+        pm.DoTiltPlayerObj(0f);
+
+        // Debug.Log("Stopped wallrunning");
+    }
+
+    void WallJump()
+    {
+        // masuk exiting wall
+        exitingWall = true;
+        exitWallTimer = exitWallTime;
+
+        Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
+        Vector3 forceToApply = transform.up * wallJumpUpForce + wallNormal * wallJumpSideForce;
+
+        // reset velocity y lalu tambahkan force 
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        rb.AddForce(forceToApply, ForceMode.Impulse);
+
+        // reset jump input
+        jumpInput = false;
     }
 
     // ambil input
@@ -139,5 +279,13 @@ public class WallRunning : MonoBehaviour
     {
         if(value.started) downwardsRunning = true;
         else if(value.canceled) downwardsRunning = false;
+    }
+
+    public void OnJump(InputAction.CallbackContext value)
+    {
+        if(pm.wallRunning)
+        {
+            if(value.started) jumpInput = true;
+        }
     }
 }

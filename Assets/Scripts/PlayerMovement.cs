@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using DG.Tweening;
 
 /// <summary>
 /// This script handles the player's movement using Rigidbody physics. It allows the player to move in four directions (forward, backward, left, right) based on input from the keyboard. The movement is smooth and physics-based, giving a more realistic feel to the player's movement. The Rigidbody's rotation is frozen to prevent unwanted rotations due to physics interactions.
@@ -29,6 +30,13 @@ public class PlayerMovement : MonoBehaviour
     [Header("State")]
     public MovementState state;
     public bool wallRunning;
+
+    [Header("Custom Gravity (Advanced)")]
+    [Tooltip("Seberapa berat karakter saat jatuh ke bawah. Rekomendasi: 2 sampai 4")]
+    public float fallMultiplier = 2.5f;
+
+    [Header("References")]
+    public Transform playerObjOrientation;
 
     public enum MovementState
     {
@@ -73,6 +81,7 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         MovePlayer();
+        ApplyCustomGravity();
     }
 
     public void OnMove(InputAction.CallbackContext value)
@@ -113,6 +122,19 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void ApplyCustomGravity()
+    {
+        // Cek apakah karakter sedang bergerak ke bawah (jatuh) di udara
+        // Unity 6 menggunakan rb.linearVelocity, bukan rb.velocity lagi
+        if (!grounded && rb.linearVelocity.y < 0)
+        {
+            // Tambahkan ekstra gaya ke bawah menggunakan ForceMode.Acceleration 
+            // agar mengabaikan berat Mass karakter.
+            float extraGravity = (fallMultiplier - 1) * 9.81f;
+            rb.AddForce(Vector3.down * extraGravity, ForceMode.Acceleration);
+        }
+    }
+
     void MovePlayer()
     {
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
@@ -150,5 +172,11 @@ public class PlayerMovement : MonoBehaviour
     void ResetJump()
     {
         readyToJump = true;
+    }
+
+    public void DoTiltPlayerObj(float tiltAngle)
+    {
+        Vector3 currentRotation = playerObjOrientation.localEulerAngles;
+        playerObjOrientation.DOLocalRotate(new Vector3(0, currentRotation.y, tiltAngle), 0.25f).SetId(playerObjOrientation);
     }
 }
