@@ -9,9 +9,9 @@ public class WallRunning : MonoBehaviour
     public float wallRunForce;
     public float wallJumpUpForce;
     public float wallJumpSideForce;
-    public float maxWallRunTime;
+    public float maxWallRunEnergy;
     public float wallClimbSpeed;
-    float wallRunTimer;
+    float wallRunEnergy;
 
     [Header("Input")]
     float horizontalInput;
@@ -80,7 +80,7 @@ public class WallRunning : MonoBehaviour
         Vector3 rayOrigin = transform.position + rayOffset;
         wallRight = Physics.Raycast(rayOrigin, orientation.right + rayOffset, out rightWallHit, wallCheckDistance, wallLayer);
         wallLeft = Physics.Raycast(rayOrigin, -orientation.right + rayOffset, out leftWallHit, wallCheckDistance, wallLayer);
-        wallFront = Physics.Raycast(rayOrigin, (orientation.forward * 0.75f) + rayOffset, out frontWallHit, wallCheckDistance, wallLayer);
+        wallFront = Physics.Raycast(rayOrigin, (orientation.forward * 0.75f) + rayOffset, out frontWallHit, wallCheckDistance);
     }
 
     bool AboveGround()
@@ -132,9 +132,9 @@ public class WallRunning : MonoBehaviour
                 lastWall = currentWall;
 
                 // wallrun timer
-                if(wallRunTimer > 0) wallRunTimer -= Time.deltaTime;
+                if(wallRunEnergy > 0) wallRunEnergy -= Time.deltaTime;
 
-                if(wallRunTimer <= 0 && pm.wallRunning)
+                if(wallRunEnergy <= 0 && pm.wallRunning)
                 {
                     exitingWall = true;
                     exitWallTimer = exitWallTime;
@@ -173,7 +173,7 @@ public class WallRunning : MonoBehaviour
     void StartWallRun()
     {
         pm.wallRunning = true;
-        wallRunTimer = maxWallRunTime;
+        wallRunEnergy = maxWallRunEnergy;
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
         // terapkan efek kamera
@@ -254,7 +254,7 @@ public class WallRunning : MonoBehaviour
         Vector3 forceToApply = transform.up * wallJumpUpForce + wallNormal * wallJumpSideForce;
 
         // reset velocity y lalu tambahkan force 
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x/2, 0, rb.linearVelocity.z/2);
         rb.AddForce(forceToApply, ForceMode.Impulse);
 
         // reset jump input
