@@ -51,7 +51,7 @@ public class EnemyBase : MonoBehaviour
     {
         Vector3 direction = (initialPosition - transform.position).normalized;
         direction.y = 0; 
-        transform.rotation = Quaternion.LookRotation(direction);
+        if (direction != Vector3.zero) transform.rotation = Quaternion.LookRotation(direction);
 
         Vector3 movePosition = transform.position + transform.forward * moveSpeed * Time.deltaTime;
         if(Vector3.Distance(transform.position, initialPosition) < 1f)
@@ -69,11 +69,11 @@ public class EnemyBase : MonoBehaviour
         // Melihat ke arah player
         Vector3 direction = (player.position - transform.position).normalized;
         direction.y = 0; // Agar musuh tidak mendongak ke atas jika player melompat
-        transform.rotation = Quaternion.LookRotation(direction);
+        if (direction != Vector3.zero) transform.rotation = Quaternion.LookRotation(direction);
 
         // Bergerak maju
         Vector3 movePosition = transform.position + transform.forward * moveSpeed * Time.deltaTime;
-        if(Vector3.Distance(transform.position, player.position) < 1f)
+        if(Vector3.Distance(transform.position, player.position) <= attackRadius)
         {
             // transform.position = player.position; 
         }

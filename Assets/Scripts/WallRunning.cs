@@ -9,9 +9,9 @@ public class WallRunning : MonoBehaviour
     public float wallRunForce;
     public float wallJumpUpForce;
     public float wallJumpSideForce;
-    public float maxWallRunTime;
+    public float maxWallRunEnergy;
     public float wallClimbSpeed;
-    float wallRunTimer;
+    float wallRunEnergy;
 
     [Header("Input")]
     float horizontalInput;
@@ -132,9 +132,9 @@ public class WallRunning : MonoBehaviour
                 lastWall = currentWall;
 
                 // wallrun timer
-                if(wallRunTimer > 0) wallRunTimer -= Time.deltaTime;
+                if(wallRunEnergy > 0) wallRunEnergy -= Time.deltaTime;
 
-                if(wallRunTimer <= 0 && pm.wallRunning)
+                if(wallRunEnergy <= 0 && pm.wallRunning)
                 {
                     exitingWall = true;
                     exitWallTimer = exitWallTime;
@@ -173,7 +173,7 @@ public class WallRunning : MonoBehaviour
     void StartWallRun()
     {
         pm.wallRunning = true;
-        wallRunTimer = maxWallRunTime;
+        wallRunEnergy = maxWallRunEnergy;
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
         // terapkan efek kamera

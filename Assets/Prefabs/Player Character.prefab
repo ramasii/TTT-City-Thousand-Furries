@@ -271,7 +271,7 @@ MonoBehaviour:
   wallRunForce: 200
   wallJumpUpForce: 6
   wallJumpSideForce: 12
-  maxWallRunTime: 1.5
+  maxWallRunEnergy: 0.8
   wallClimbSpeed: 3
   wallCheckDistance: 0.7
   minJumpHeight: 1
