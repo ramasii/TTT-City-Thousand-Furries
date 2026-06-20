@@ -37,6 +37,9 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("References")]
     public Transform playerObjOrientation;
+    public ParticleSystem dustParticle;
+    public ParticleSystem stompParticle;
+    bool wasGrounded;
 
     public enum MovementState
     {
@@ -59,6 +62,14 @@ public class PlayerMovement : MonoBehaviour
 
         SpeedControl();
         StateHandler();
+        ToggleDust();
+
+        if(grounded && !wasGrounded)
+        {
+            PlayStompParticle();
+        }
+
+        wasGrounded = grounded;
 
         // tangani drag saat di tanah
         if (grounded)
@@ -122,6 +133,28 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void ToggleDust()
+    {
+        bool isMoving = rb.linearVelocity.magnitude > 0.1f;
+        if(isMoving && (grounded || wallRunning))
+        {
+            if(!dustParticle.isPlaying) dustParticle.Play();
+        }
+        else
+        {
+            if(dustParticle.isPlaying) dustParticle.Stop();
+        }
+    }
+
+    void PlayStompParticle()
+    {
+        if(stompParticle != null)
+        {
+            stompParticle.Stop();
+            stompParticle.Play();
+        }
+    }
+
     void ApplyCustomGravity()
     {
         // Cek apakah karakter sedang bergerak ke bawah (jatuh) di udara
@@ -162,11 +195,14 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void Jump()
+    public void Jump()
     {
         // reset y vel
         rb.linearVelocity = new Vector3(rb.linearVelocity.x*airMultiplier, 0f, rb.linearVelocity.z*airMultiplier);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+
+        // efek visual saat lompat
+        PlayStompParticle();
     }
 
     void ResetJump()
