@@ -80,7 +80,7 @@ public class WallRunning : MonoBehaviour
         Vector3 rayOrigin = transform.position + rayOffset;
         wallRight = Physics.Raycast(rayOrigin, orientation.right + rayOffset, out rightWallHit, wallCheckDistance, wallLayer);
         wallLeft = Physics.Raycast(rayOrigin, -orientation.right + rayOffset, out leftWallHit, wallCheckDistance, wallLayer);
-        wallFront = Physics.Raycast(rayOrigin, (orientation.forward * 0.75f) + rayOffset, out frontWallHit, wallCheckDistance, wallLayer);
+        wallFront = Physics.Raycast(rayOrigin, (orientation.forward * 0.75f) + rayOffset, out frontWallHit, wallCheckDistance);
     }
 
     bool AboveGround()
@@ -254,7 +254,7 @@ public class WallRunning : MonoBehaviour
         Vector3 forceToApply = transform.up * wallJumpUpForce + wallNormal * wallJumpSideForce;
 
         // reset velocity y lalu tambahkan force 
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x/2, 0, rb.linearVelocity.z/2);
         rb.AddForce(forceToApply, ForceMode.Impulse);
 
         // reset jump input
