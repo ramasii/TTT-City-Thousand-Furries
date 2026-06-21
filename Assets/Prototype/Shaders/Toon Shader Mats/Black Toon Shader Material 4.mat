@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Toon Shader Material 1
+  m_Name: Black Toon Shader Material 4
   m_Shader: {fileID: -6465566751694194690, guid: 9a8af6a04e3548941a9b440f83ebe6eb, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -38,15 +38,15 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Glossiness: 0.32
+    - _Glossiness: 4
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Rim_Power: 4
-    - _Specular_Size: 0.99
+    - _Specular_Size: 0.966
     m_Colors:
-    - _Base_Color: {r: 0, g: 1, b: 0.971216, a: 1}
-    - _Rim_Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Shadow_Color: {r: 0.08276964, g: 0.4707685, b: 0.5660378, a: 1}
+    - _Base_Color: {r: 0.0754717, g: 0.0754717, b: 0.0754717, a: 1}
+    - _Rim_Color: {r: 0, g: 0, b: 0, a: 1}
+    - _Shadow_Color: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &4420754935327851720
