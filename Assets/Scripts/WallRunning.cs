@@ -13,6 +13,9 @@ public class WallRunning : MonoBehaviour
     public float wallClimbSpeed;
     float wallRunEnergy;
 
+    public float CurrentEnergy => wallRunEnergy;
+    public float MaxEnergy => maxWallRunEnergy;
+
     [Header("Input")]
     float horizontalInput;
     float verticalInput;
@@ -52,6 +55,8 @@ public class WallRunning : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         pm = GetComponent<PlayerMovement>();
+
+        wallRunEnergy = maxWallRunEnergy;
     }
 
     void Update()
@@ -59,7 +64,7 @@ public class WallRunning : MonoBehaviour
         CheckForWall();
         StateMachine();
 
-        if(!AboveGround())
+        if (!AboveGround())
         {
             lastNormal = Vector3.zero; // reset normal dinding terakhir jika menyentuh tanah
             lastWall = null; // reset transform dinding terakhir jika menyentuh tanah
@@ -68,7 +73,7 @@ public class WallRunning : MonoBehaviour
 
     void FixedUpdate()
     {
-        if(pm.wallRunning)
+        if (pm.wallRunning)
         {
             WallRunningMovement();
         }
@@ -106,12 +111,12 @@ public class WallRunning : MonoBehaviour
         // ambil normal dinding yang sedang disentuh
         Vector3 currentNormal = Vector3.zero;
         Transform currentWall = null;
-        if (wallRight) 
+        if (wallRight)
         {
             currentNormal = rightWallHit.normal;
             currentWall = rightWallHit.transform;
         }
-        else if (wallLeft) 
+        else if (wallLeft)
         {
             currentNormal = leftWallHit.normal;
             currentWall = leftWallHit.transform;
@@ -120,9 +125,9 @@ public class WallRunning : MonoBehaviour
         bool isNewWall = currentWall != null && currentWall != lastWall;
 
         // state 1 -  wall running
-        if((wallLeft || wallRight) && verticalInput > 0 && AboveGround() && !exitingWall)
+        if ((wallLeft || wallRight) && verticalInput > 0 && AboveGround() && !exitingWall)
         {
-            if(!pm.wallRunning && isNewWall) StartWallRun();
+            if (!pm.wallRunning && isNewWall) StartWallRun();
 
             if (pm.wallRunning)
             {
@@ -132,31 +137,31 @@ public class WallRunning : MonoBehaviour
                 lastWall = currentWall;
 
                 // wallrun timer
-                if(wallRunEnergy > 0) wallRunEnergy -= Time.deltaTime;
+                if (wallRunEnergy > 0) wallRunEnergy -= Time.deltaTime;
 
-                if(wallRunEnergy <= 0 && pm.wallRunning)
+                if (wallRunEnergy <= 0 && pm.wallRunning)
                 {
                     exitingWall = true;
                     exitWallTimer = exitWallTime;
                 }
 
                 // wall jump
-                if(jumpInput) WallJump();
+                if (jumpInput) WallJump();
             }
 
         }
 
         // state 2 - exiting wall
-        else if(exitingWall)
+        else if (exitingWall)
         {
-            if(pm.wallRunning) StopWallRun();
+            if (pm.wallRunning) StopWallRun();
 
-            if(exitWallTimer > 0)
+            if (exitWallTimer > 0)
             {
                 exitWallTimer -= Time.deltaTime;
             }
 
-            if(exitWallTimer <= 0)
+            if (exitWallTimer <= 0)
             {
                 exitingWall = false;
                 // exitWallTimer = exitWallTime;
@@ -166,7 +171,7 @@ public class WallRunning : MonoBehaviour
         // state 3 - not wall running
         else
         {
-            if(pm.wallRunning) StopWallRun();
+            if (pm.wallRunning) StopWallRun();
         }
     }
 
@@ -178,12 +183,12 @@ public class WallRunning : MonoBehaviour
 
         // terapkan efek kamera
         thirdPersonCam.DoFov(60f);
-        if(wallRight) thirdPersonCam.DoDutch(6f);
-        else if(wallLeft) thirdPersonCam.DoDutch(-6f);
+        if (wallRight) thirdPersonCam.DoDutch(6f);
+        else if (wallLeft) thirdPersonCam.DoDutch(-6f);
 
         // terapkan player obj tilt
-        if(wallRight) pm.DoTiltPlayerObj(15f);
-        else if(wallLeft) pm.DoTiltPlayerObj(-15f);
+        if (wallRight) pm.DoTiltPlayerObj(15f);
+        else if (wallLeft) pm.DoTiltPlayerObj(-15f);
 
         // simpan normal dinding terakhir yang disentuh
         // lastNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
@@ -197,7 +202,7 @@ public class WallRunning : MonoBehaviour
         Vector3 wallForward = Vector3.Cross(wallNormal, transform.up);
 
         // memastikan wallForward mengarah ke arah yang benar
-        if((orientation.forward - wallForward).magnitude > (orientation.forward - -wallForward).magnitude)
+        if ((orientation.forward - wallForward).magnitude > (orientation.forward - -wallForward).magnitude)
         {
             wallForward = -wallForward;
         }
@@ -209,23 +214,23 @@ public class WallRunning : MonoBehaviour
         bool isStruckInCorner = wallFront || (wallLeft && wallRight);
 
         // force ke atas/bawah
-        if(upwardsRunning && !isStruckInCorner)
+        if (upwardsRunning && !isStruckInCorner)
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, wallClimbSpeed, rb.linearVelocity.z);
         }
-        if(downwardsRunning && !isStruckInCorner)
+        if (downwardsRunning && !isStruckInCorner)
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, -wallClimbSpeed, rb.linearVelocity.z);
         }
 
         // force ke dinding
-        if(!(wallLeft && horizontalInput > 0) && !(wallRight && horizontalInput < 0))
+        if (!(wallLeft && horizontalInput > 0) && !(wallRight && horizontalInput < 0))
         {
             rb.AddForce(-wallNormal * 100, ForceMode.Force);
         }
 
         // kurangi gravitasi
-        if(useGravity)
+        if (useGravity)
         {
             rb.AddForce(transform.up * gravityCounterForce, ForceMode.Force);
         }
@@ -253,8 +258,9 @@ public class WallRunning : MonoBehaviour
         Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
         Vector3 forceToApply = transform.up * wallJumpUpForce + wallNormal * wallJumpSideForce;
 
+        AudioManager.instance.PlayJump();
         // reset velocity y lalu tambahkan force 
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x/2, 0, rb.linearVelocity.z/2);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x / 2, 0, rb.linearVelocity.z / 2);
         rb.AddForce(forceToApply, ForceMode.Impulse);
 
         // reset jump input
@@ -271,21 +277,21 @@ public class WallRunning : MonoBehaviour
 
     public void OnSprint(InputAction.CallbackContext value)
     {
-        if(value.started) upwardsRunning = true;
-        else if(value.canceled) upwardsRunning = false;
+        if (value.started) upwardsRunning = true;
+        else if (value.canceled) upwardsRunning = false;
     }
 
     public void OnCrouch(InputAction.CallbackContext value)
     {
-        if(value.started) downwardsRunning = true;
-        else if(value.canceled) downwardsRunning = false;
+        if (value.started) downwardsRunning = true;
+        else if (value.canceled) downwardsRunning = false;
     }
 
     public void OnJump(InputAction.CallbackContext value)
     {
-        if(pm.wallRunning)
+        if (pm.wallRunning)
         {
-            if(value.started) jumpInput = true;
+            if (value.started) jumpInput = true;
         }
     }
 }

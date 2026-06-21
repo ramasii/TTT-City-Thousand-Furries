@@ -87,6 +87,7 @@ public class EnemyBase : MonoBehaviour
     {
         if (Time.time >= lastAttackTime + attackCooldown)
         {
+            AudioManager.instance.PlayEnemyAttack();
             // Lakukan serangan (misal: panggil fungsi TakeDamage di script Player)
             Debug.Log("Musuh menyerang player!");
             
@@ -96,6 +97,7 @@ public class EnemyBase : MonoBehaviour
 
     public virtual void TakeDamage(int damage)
     {
+        AudioManager.instance.PlayEnemyDamage();
         currentHealth -= damage;
         Debug.Log(gameObject.name + " kena damage. Sisa HP: " + currentHealth);
 
