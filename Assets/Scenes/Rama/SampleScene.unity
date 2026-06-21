@@ -2401,7 +2401,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 439591544}
+  m_Mesh: {fileID: 1253808527}
 --- !u!33 &80696235
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -3193,7 +3193,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 359165253}
+  m_Mesh: {fileID: 1362780034}
 --- !u!33 &311308954
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -14318,7 +14318,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 946725213}
+  m_Mesh: {fileID: 359165253}
 --- !u!33 &982319042
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -22909,7 +22909,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 1253808527}
+  m_Mesh: {fileID: 780556554}
 --- !u!33 &1959351955
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -25198,6 +25198,10 @@ PrefabInstance:
     - target: {fileID: 2445633231727743687, guid: 3226d7a85514e17489258a4617940322, type: 3}
       propertyPath: m_Name
       value: Fog
+      objectReference: {fileID: 0}
+    - target: {fileID: 2445633231727743687, guid: 3226d7a85514e17489258a4617940322, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7552799410839753877, guid: 3226d7a85514e17489258a4617940322, type: 3}
       propertyPath: m_LocalPosition.y
