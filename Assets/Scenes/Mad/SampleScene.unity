@@ -5151,7 +5151,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000030517578}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 26.1671, y: 12.527}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &561781106
@@ -14816,10 +14816,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   audioSource: {fileID: 1485123321}
-  uiClick: {fileID: 8300000, guid: 0a5532858f5a1e24da650f3f00704a9a, type: 3}
-  playerJump: {fileID: 8300000, guid: c62c90b1b5adb374486d78a520d66ba2, type: 3}
-  enemyAttack: {fileID: 8300000, guid: c1f42a55bdae9cf4ea5aadf19a4bbb10, type: 3}
-  enemyTakeDamage: {fileID: 8300000, guid: a1adf871615b5c54bae4bf6ec616f6e3, type: 3}
+  uiClick: {fileID: 8300000, guid: 315af9512cd9e9f43832bffba5ca2831, type: 3}
+  playerJump: {fileID: 8300000, guid: 28b944c267d6b3347b20c44dea01a818, type: 3}
+  enemyAttack: {fileID: 8300000, guid: 85792d052d89fca4e8fd97aa73dd73ab, type: 3}
+  enemyTakeDamage: {fileID: 8300000, guid: 429c947174e487046bcf92c08e6a71c8, type: 3}
 --- !u!43 &1308800161
 Mesh:
   m_ObjectHideFlags: 0

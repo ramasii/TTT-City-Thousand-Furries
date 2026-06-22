@@ -67,6 +67,6 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "TTT-City-Thousand-Furries.slnx",
+    "dotnet.defaultSolution": "TTT City Thousand Furries.slnx",
     "dotnet.enableWorkspaceBasedDevelopment": false
 }
