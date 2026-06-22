@@ -13,6 +13,8 @@ public class EnemyBase : MonoBehaviour
     [SerializeField] protected float attackRadius = 1.5f;
     [SerializeField] protected int attackDamage = 1;
     [SerializeField] protected float attackCooldown = 2f;
+    [Header("References")]
+    public ParticleSystem attackParticle;
     protected float lastAttackTime;
 
     protected Transform player;
@@ -92,6 +94,7 @@ public class EnemyBase : MonoBehaviour
             Debug.Log("Musuh menyerang player!");
             
             lastAttackTime = Time.time;
+            ToggleAttackParticle();
         }
     }
 
@@ -143,7 +146,8 @@ public class EnemyBase : MonoBehaviour
                 if (playerRb != null)
                 {
                     playerRb.linearVelocity = new Vector3(playerRb.linearVelocity.x*0.5f, 0, playerRb.linearVelocity.z*0.5f);
-                    playerRb.AddForce(Vector3.up * 6f, ForceMode.Impulse);
+                    // playerRb.AddForce(Vector3.up * 6f, ForceMode.Impulse);
+                    player.GetComponent<PlayerMovement>().Jump();
                 }
             }
             else
@@ -152,6 +156,15 @@ public class EnemyBase : MonoBehaviour
                 Debug.Log("Player nabrak dari samping! Player yang kena damage.");
                 // collision.gameObject.GetComponent<PlayerScript>().TakeDamage(attackDamage);
             }
+        }
+    }
+
+    protected virtual void ToggleAttackParticle()
+    {
+        if (attackParticle != null)
+        {
+            if (!attackParticle.isPlaying) attackParticle.Play();
+            else attackParticle.Stop();
         }
     }
 }
