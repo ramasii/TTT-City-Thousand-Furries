@@ -164,6 +164,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Jump()
     {
+        AudioManager.instance.PlayJump();
         // reset y vel
         rb.linearVelocity = new Vector3(rb.linearVelocity.x*airMultiplier, 0f, rb.linearVelocity.z*airMultiplier);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
