@@ -68,6 +68,7 @@ public class WallRunning : MonoBehaviour
         {
             lastNormal = Vector3.zero; // reset normal dinding terakhir jika menyentuh tanah
             lastWall = null; // reset transform dinding terakhir jika menyentuh tanah
+            wallRunEnergy = maxWallRunEnergy;
         }
     }
 
@@ -178,7 +179,7 @@ public class WallRunning : MonoBehaviour
     void StartWallRun()
     {
         pm.wallRunning = true;
-        wallRunEnergy = maxWallRunEnergy;
+        // wallRunEnergy = maxWallRunEnergy;
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
         // terapkan efek kamera
@@ -245,6 +246,7 @@ public class WallRunning : MonoBehaviour
         thirdPersonCam.DoDutch(0f);
         // reset player obj tilt
         pm.DoTiltPlayerObj(0f);
+        wallRunEnergy = maxWallRunEnergy;
 
         // Debug.Log("Stopped wallrunning");
     }

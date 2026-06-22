@@ -23556,18 +23556,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1324151189707726650, guid: c2440cf25cacd8842b35fe100f9741ab, type: 3}
-      propertyPath: m_Layer
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 1513176095023121967, guid: c2440cf25cacd8842b35fe100f9741ab, type: 3}
       propertyPath: thirdPersonCam
       value: 
       objectReference: {fileID: 330585549}
-    - target: {fileID: 2444777868759867599, guid: c2440cf25cacd8842b35fe100f9741ab, type: 3}
-      propertyPath: m_Layer
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 3705002184311450375, guid: c2440cf25cacd8842b35fe100f9741ab, type: 3}
       propertyPath: m_LocalPosition.x
       value: -13.07
@@ -23615,14 +23607,6 @@ PrefabInstance:
     - target: {fileID: 5912946389355439598, guid: c2440cf25cacd8842b35fe100f9741ab, type: 3}
       propertyPath: m_Name
       value: Player Character
-      objectReference: {fileID: 0}
-    - target: {fileID: 8263161365663350186, guid: c2440cf25cacd8842b35fe100f9741ab, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8900637640555907055, guid: c2440cf25cacd8842b35fe100f9741ab, type: 3}
-      propertyPath: m_Enabled
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -5133,9 +5133,9 @@ MonoBehaviour:
   runningSpeed: 8
   wallRunningSpeed: 6
   groundDrag: 7
-  jumpForce: 8
+  jumpForce: 7
   jumpCooldown: 0.25
-  airMultiplier: 0.2
+  airMultiplier: 0.4
   playerHeight: 1
   checkExtend: 0.7
   groundLayer:
