@@ -5167,7 +5167,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   wallRunForce: 200
-  wallJumpUpForce: 6
+  wallJumpUpForce: 7
   wallJumpSideForce: 12
   maxWallRunEnergy: 0.8
   wallClimbSpeed: 3.5

@@ -104,7 +104,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext value)
     {
-        if (value.started && readyToJump && grounded)
+        if (value.started && readyToJump && grounded && state != MovementState.wallRunning)
         {
             readyToJump = false;
             Jump();
@@ -201,6 +201,8 @@ public class PlayerMovement : MonoBehaviour
         // reset y vel
         rb.linearVelocity = new Vector3(rb.linearVelocity.x*airMultiplier, 0f, rb.linearVelocity.z*airMultiplier);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+
+        Debug.Log("Player Jumped!");
 
         // efek visual saat lompat
         PlayStompParticle();

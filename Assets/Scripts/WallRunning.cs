@@ -257,13 +257,20 @@ public class WallRunning : MonoBehaviour
         exitingWall = true;
         exitWallTimer = exitWallTime;
 
+        // Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
+        // Vector3 forceToApply = transform.up * wallJumpUpForce + wallNormal * wallJumpSideForce;
+
         Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
+        wallNormal.y = 0f; // Matikan gaya ke atas yang bocor/tidak disengaja
+        wallNormal.Normalize(); // Kembalikan panjang vektor ke 1
         Vector3 forceToApply = transform.up * wallJumpUpForce + wallNormal * wallJumpSideForce;
 
         AudioManager.instance.PlayJump();
         // reset velocity y lalu tambahkan force 
         rb.linearVelocity = new Vector3(rb.linearVelocity.x / 2, 0, rb.linearVelocity.z / 2);
         rb.AddForce(forceToApply, ForceMode.Impulse);
+
+        Debug.Log("Wall Jumped!");
 
         // reset jump input
         jumpInput = false;
