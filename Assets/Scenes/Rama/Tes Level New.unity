@@ -16390,17 +16390,9 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1513176095023121967, guid: c2440cf25cacd8842b35fe100f9741ab, type: 3}
-      propertyPath: wallRunForce
-      value: 150
-      objectReference: {fileID: 0}
-    - target: {fileID: 1513176095023121967, guid: c2440cf25cacd8842b35fe100f9741ab, type: 3}
       propertyPath: thirdPersonCam
       value: 
       objectReference: {fileID: 330585549}
-    - target: {fileID: 1513176095023121967, guid: c2440cf25cacd8842b35fe100f9741ab, type: 3}
-      propertyPath: wallJumpSideForce
-      value: 11
-      objectReference: {fileID: 0}
     - target: {fileID: 3705002184311450375, guid: c2440cf25cacd8842b35fe100f9741ab, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.36

@@ -4906,7 +4906,7 @@ GameObject:
   - component: {fileID: 4531932332371900888}
   - component: {fileID: 8263161365663350186}
   m_Layer: 2
-  m_Name: Cube
+  m_Name: Cube - ganti Cube ini dengan model character
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4996,7 +4996,7 @@ GameObject:
   - component: {fileID: 3224340505262114971}
   - component: {fileID: 8900637640555907055}
   m_Layer: 2
-  m_Name: Capsule
+  m_Name: Capsule - JANGAN DIHAPUS, cukup matiin mesh renderer nya aja
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5166,9 +5166,9 @@ MonoBehaviour:
   groundLayerMask:
     serializedVersion: 2
     m_Bits: 8
-  wallRunForce: 200
+  wallRunForce: 150
   wallJumpUpForce: 7
-  wallJumpSideForce: 12
+  wallJumpSideForce: 11
   maxWallRunEnergy: 0.8
   wallClimbSpeed: 3.5
   wallCheckDistance: 0.7
