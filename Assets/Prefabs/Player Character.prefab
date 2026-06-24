@@ -5135,7 +5135,7 @@ MonoBehaviour:
   groundDrag: 7
   jumpForce: 7
   jumpCooldown: 0.25
-  airMultiplier: 0.4
+  airMultiplier: 0.25
   playerHeight: 1
   checkExtend: 0.7
   groundLayer:

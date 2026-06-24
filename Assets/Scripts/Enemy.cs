@@ -147,7 +147,7 @@ public class EnemyBase : MonoBehaviour
                 {
                     playerRb.linearVelocity = new Vector3(playerRb.linearVelocity.x*0.5f, 0, playerRb.linearVelocity.z*0.5f);
                     // playerRb.AddForce(Vector3.up * 6f, ForceMode.Impulse);
-                    player.GetComponent<PlayerMovement>().Jump();
+                    player.GetComponent<PlayerMovement>().TryJump(false);
                 }
             }
             else

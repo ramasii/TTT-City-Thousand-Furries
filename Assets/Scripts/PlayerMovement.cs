@@ -40,6 +40,7 @@ public class PlayerMovement : MonoBehaviour
     public ParticleSystem dustParticle;
     public ParticleSystem stompParticle;
     bool wasGrounded;
+    WallRunning wallRunningScript;
 
     public enum MovementState
     {
@@ -52,6 +53,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true; // Mencegah karakter berputar akibat interaksi fisika
+        wallRunningScript = GetComponent<WallRunning>();
     }
 
     void Update()
@@ -107,7 +109,8 @@ public class PlayerMovement : MonoBehaviour
         if (value.started && readyToJump && grounded && state != MovementState.wallRunning)
         {
             readyToJump = false;
-            Jump();
+            // Jump();
+            TryJump(false);
             Invoke(nameof(ResetJump), jumpCooldown);
         }
     }
@@ -197,15 +200,30 @@ public class PlayerMovement : MonoBehaviour
 
     public void Jump()
     {
+        if (wallRunning) return;
         AudioManager.instance.PlayJump();
         // reset y vel
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x*airMultiplier, 0f, rb.linearVelocity.z*airMultiplier);
+        // rb.linearVelocity = new Vector3(rb.linearVelocity.x*airMultiplier, 0f, rb.linearVelocity.z*airMultiplier);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
 
         Debug.Log("Player Jumped!");
 
         // efek visual saat lompat
         PlayStompParticle();
+    }
+
+    // mencegah force lompatan biasa dengan lompatan dinding menyatu
+    public void TryJump(bool isWallJump)
+    {
+        if (isWallJump)
+        {
+            wallRunningScript.WallJump();
+        }
+        else
+        {
+            Jump();
+        }
     }
 
     void ResetJump()

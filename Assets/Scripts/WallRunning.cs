@@ -147,7 +147,7 @@ public class WallRunning : MonoBehaviour
                 }
 
                 // wall jump
-                if (jumpInput) WallJump();
+                if (jumpInput && !exitingWall) pm.TryJump(true);
             }
 
         }
@@ -251,8 +251,10 @@ public class WallRunning : MonoBehaviour
         // Debug.Log("Stopped wallrunning");
     }
 
-    void WallJump()
+    public void WallJump()
     {
+        if(exitingWall) return;
+        
         // masuk exiting wall
         exitingWall = true;
         exitWallTimer = exitWallTime;
@@ -267,7 +269,8 @@ public class WallRunning : MonoBehaviour
 
         AudioManager.instance.PlayJump();
         // reset velocity y lalu tambahkan force 
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x / 2, 0, rb.linearVelocity.z / 2);
+        // rb.linearVelocity = new Vector3(rb.linearVelocity.x / 2, 0, rb.linearVelocity.z / 2);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         rb.AddForce(forceToApply, ForceMode.Impulse);
 
         Debug.Log("Wall Jumped!");

@@ -4,10 +4,10 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    public void PlayGame()
+    public void PlayGame(string sceneName)
     {
         AudioManager.instance.PlayUIClick();
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene(sceneName);
     }
     
 }

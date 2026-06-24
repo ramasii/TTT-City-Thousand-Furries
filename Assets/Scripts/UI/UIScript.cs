@@ -39,7 +39,7 @@ public class UIScript : MonoBehaviour
         if (wallRunning == null || energyFill == null) return;
 
         float ratio = wallRunning.CurrentEnergy / wallRunning.MaxEnergy;
-        energyFill.fillAmount = Mathf.Lerp(energyFill.fillAmount, ratio, Time.deltaTime * 10f);
+        energyFill.fillAmount = Mathf.Lerp(energyFill.fillAmount, ratio, Time.deltaTime * 100f);
     }
 
     // ================= PAUSE =================
@@ -75,6 +75,11 @@ public class UIScript : MonoBehaviour
         isPaused = false;
 
         ShowCursor(false);
+    }
+
+    public void LoadScene(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
     }
 
     public void Restart()
