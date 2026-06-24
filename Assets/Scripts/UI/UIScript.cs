@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class UIScript : MonoBehaviour
 {
@@ -10,7 +11,10 @@ public class UIScript : MonoBehaviour
     public Image energyFill;
     public WallRunning wallRunning;
 
-    [Header("Pause Panel")]
+    [Header("UI Panels")]
+    public GameObject winPanel;
+    public GameObject losePanel; // Panel dengan tulisan raksasa "LATE!"
+    public TextMeshProUGUI timerText;
     public GameObject pausePanel;
     private bool isPaused;
 
@@ -23,7 +27,10 @@ public class UIScript : MonoBehaviour
     void Update()
     {
         UpdateEnergyUI();
-        HandlePauseInput();
+        if(GameManager.Instance.CurrentState == GameManager.GameState.Playing)
+        {
+            HandlePauseInput();
+        }
     }
 
     // ================= ENERGY =================
@@ -32,7 +39,7 @@ public class UIScript : MonoBehaviour
         if (wallRunning == null || energyFill == null) return;
 
         float ratio = wallRunning.CurrentEnergy / wallRunning.MaxEnergy;
-        energyFill.fillAmount = Mathf.Lerp(energyFill.fillAmount, ratio, Time.deltaTime * 10f);
+        energyFill.fillAmount = Mathf.Lerp(energyFill.fillAmount, ratio, Time.deltaTime * 100f);
     }
 
     // ================= PAUSE =================
@@ -55,8 +62,7 @@ public class UIScript : MonoBehaviour
         Time.timeScale = 0f;
         isPaused = true;
 
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        ShowCursor();
     }
 
     public void Resume()
@@ -68,21 +74,72 @@ public class UIScript : MonoBehaviour
         Time.timeScale = 1f;
         isPaused = false;
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        ShowCursor(false);
+    }
+
+    public void LoadScene(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
     }
 
     public void Restart()
     {
         AudioManager.instance.PlayUIClick();
-        Time.timeScale = 1f;
+
+        // Reset timer saat restart
+        TimerController timerController = FindAnyObjectByType<TimerController>();
+        if (timerController) timerController.ResetTimer();
+
+        GameManager.Instance.StartGame(); // Reset state di GameManager
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void MainMenu()
     {
         AudioManager.instance.PlayUIClick();
-        Time.timeScale = 1f;
+        // GameManager.Instance.StartGame(); // Reset state di GameManager
         SceneManager.LoadScene("MainMenu");
+    }
+
+    private void OnEnable()
+    {
+        // Mulai "mendengarkan" event dari GameManager dan Timer
+        GameManager.OnGameWin += ShowWinPanel;
+        GameManager.OnGameOver += ShowLosePanel;
+        TimerController.OnTimeUpdated += UpdateTimerUI;
+    }
+
+    private void OnDisable()
+    {
+        // Berhenti mendengarkan saat objek hancur (Mencegah Memory Leak)
+        GameManager.OnGameWin -= ShowWinPanel;
+        GameManager.OnGameOver -= ShowLosePanel;
+        TimerController.OnTimeUpdated -= UpdateTimerUI;
+    }
+
+    private void UpdateTimerUI(float timeRemaining)
+    {
+        timerText.text = Mathf.CeilToInt(timeRemaining).ToString();
+    }
+
+    private void ShowWinPanel()
+    {
+        ShowCursor();
+        winPanel.SetActive(true);
+        // Boleh tambahkan DOTween animasi disini
+    }
+
+    private void ShowLosePanel()
+    {
+        ShowCursor();
+        losePanel.SetActive(true);
+        // Boleh tambahkan DOTween shake effect pada teks "LATE!" disini
+    }
+
+    private void ShowCursor(bool show = true)
+    {
+        Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = show;
     }
 }

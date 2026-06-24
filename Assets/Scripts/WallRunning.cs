@@ -68,6 +68,7 @@ public class WallRunning : MonoBehaviour
         {
             lastNormal = Vector3.zero; // reset normal dinding terakhir jika menyentuh tanah
             lastWall = null; // reset transform dinding terakhir jika menyentuh tanah
+            wallRunEnergy = maxWallRunEnergy;
         }
     }
 
@@ -146,7 +147,7 @@ public class WallRunning : MonoBehaviour
                 }
 
                 // wall jump
-                if (jumpInput) WallJump();
+                if (jumpInput && !exitingWall) pm.TryJump(true);
             }
 
         }
@@ -178,7 +179,7 @@ public class WallRunning : MonoBehaviour
     void StartWallRun()
     {
         pm.wallRunning = true;
-        wallRunEnergy = maxWallRunEnergy;
+        // wallRunEnergy = maxWallRunEnergy;
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
         // terapkan efek kamera
@@ -245,23 +246,34 @@ public class WallRunning : MonoBehaviour
         thirdPersonCam.DoDutch(0f);
         // reset player obj tilt
         pm.DoTiltPlayerObj(0f);
+        wallRunEnergy = maxWallRunEnergy;
 
         // Debug.Log("Stopped wallrunning");
     }
 
-    void WallJump()
+    public void WallJump()
     {
+        if(exitingWall) return;
+        
         // masuk exiting wall
         exitingWall = true;
         exitWallTimer = exitWallTime;
 
+        // Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
+        // Vector3 forceToApply = transform.up * wallJumpUpForce + wallNormal * wallJumpSideForce;
+
         Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
+        wallNormal.y = 0f; // Matikan gaya ke atas yang bocor/tidak disengaja
+        wallNormal.Normalize(); // Kembalikan panjang vektor ke 1
         Vector3 forceToApply = transform.up * wallJumpUpForce + wallNormal * wallJumpSideForce;
 
         AudioManager.instance.PlayJump();
         // reset velocity y lalu tambahkan force 
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x / 2, 0, rb.linearVelocity.z / 2);
+        // rb.linearVelocity = new Vector3(rb.linearVelocity.x / 2, 0, rb.linearVelocity.z / 2);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         rb.AddForce(forceToApply, ForceMode.Impulse);
+
+        Debug.Log("Wall Jumped!");
 
         // reset jump input
         jumpInput = false;
