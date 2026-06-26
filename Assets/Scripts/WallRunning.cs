@@ -38,6 +38,7 @@ public class WallRunning : MonoBehaviour
 
     [Header("References")]
     public Transform orientation;
+    public Animator playerAnimator;
     PlayerMovement pm;
     Rigidbody rb;
     public ThirdPersonCam thirdPersonCam;
@@ -274,6 +275,7 @@ public class WallRunning : MonoBehaviour
         rb.AddForce(forceToApply, ForceMode.Impulse);
 
         Debug.Log("Wall Jumped!");
+        playerAnimator.SetTrigger("Jump");
 
         // reset jump input
         jumpInput = false;
