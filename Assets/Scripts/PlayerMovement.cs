@@ -42,6 +42,9 @@ public class PlayerMovement : MonoBehaviour
     bool wasGrounded;
     WallRunning wallRunningScript;
 
+    [Header("Animation")]
+    public Animator playerAnimator;
+
     public enum MovementState
     {
         runnning,
@@ -66,7 +69,7 @@ public class PlayerMovement : MonoBehaviour
         StateHandler();
         ToggleDust();
 
-        if(grounded && !wasGrounded)
+        if (grounded && !wasGrounded)
         {
             PlayStompParticle();
         }
@@ -82,6 +85,7 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.linearDamping = 0;
         }
+        UpdateAnimator();
     }
 
     void OnDrawGizmosSelected()
@@ -106,6 +110,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext value)
     {
+        if (GetComponent<Player>().isHit) return;
         if (value.started && readyToJump && grounded && state != MovementState.wallRunning)
         {
             readyToJump = false;
@@ -117,15 +122,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void StateHandler()
     {
+        if (GetComponent<Player>().isHit) return;
         // mode wall running
-        if(wallRunning)
+        if (wallRunning)
         {
             state = MovementState.wallRunning;
             desiredMoveSpeed = wallRunningSpeed;
         }
 
         // mode running
-        if(grounded)
+        if (grounded)
         {
             state = MovementState.runnning;
             desiredMoveSpeed = runningSpeed;
@@ -139,19 +145,19 @@ public class PlayerMovement : MonoBehaviour
     void ToggleDust()
     {
         bool isMoving = rb.linearVelocity.magnitude > 0.1f;
-        if(isMoving && (grounded || wallRunning))
+        if (isMoving && (grounded || wallRunning))
         {
-            if(!dustParticle.isPlaying) dustParticle.Play();
+            if (!dustParticle.isPlaying) dustParticle.Play();
         }
         else
         {
-            if(dustParticle.isPlaying) dustParticle.Stop();
+            if (dustParticle.isPlaying) dustParticle.Stop();
         }
     }
 
     void PlayStompParticle()
     {
-        if(stompParticle != null)
+        if (stompParticle != null)
         {
             stompParticle.Stop();
             stompParticle.Play();
@@ -173,16 +179,17 @@ public class PlayerMovement : MonoBehaviour
 
     void MovePlayer()
     {
+        if (GetComponent<Player>().isHit) return;
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
         // gerak di tanah
-        if(grounded)
+        if (grounded)
         {
             rb.AddForce(moveDirection.normalized * desiredMoveSpeed * 10f, ForceMode.Force);
         }
-        
+
         // gerak di udara
-        else if(!grounded)
+        else if (!grounded)
         {
             rb.AddForce(moveDirection.normalized * desiredMoveSpeed * 10f * airMultiplier, ForceMode.Force);
         }
@@ -208,6 +215,11 @@ public class PlayerMovement : MonoBehaviour
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
 
         Debug.Log("Player Jumped!");
+        playerAnimator.SetTrigger("Jump");
+        {
+            Debug.Log("Jump animation triggered.");
+        }
+        ;
 
         // efek visual saat lompat
         PlayStompParticle();
@@ -235,5 +247,18 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 currentRotation = playerObjOrientation.localEulerAngles;
         playerObjOrientation.DOLocalRotate(new Vector3(0, currentRotation.y, tiltAngle), 0.25f).SetId(playerObjOrientation);
+    }
+    void UpdateAnimator()
+    {
+        if (playerAnimator == null) return;
+
+        Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        playerAnimator.SetFloat("Mag", flatVel.magnitude);
+
+        playerAnimator.SetBool("Grounded", grounded);
+        playerAnimator.SetBool("WallRunning", wallRunning);
+
+        bool isAir = !grounded && !wallRunning;
+        playerAnimator.SetBool("MidAir", isAir);
     }
 }

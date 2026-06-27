@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class EnemyBase : MonoBehaviour
@@ -10,21 +11,46 @@ public class EnemyBase : MonoBehaviour
     [Header("Combat & AI")]
     [SerializeField] protected Vector3 initialPosition;
     [SerializeField] protected float chaseRadius = 10f;
+    [SerializeField] protected float stopChaseRadius = 12f; // <- penting
     [SerializeField] protected float attackRadius = 1.5f;
     [SerializeField] protected int attackDamage = 1;
-    [SerializeField] protected float attackCooldown = 2f;
+    [SerializeField] protected float attackCooldown = 3.5f;
+    [SerializeField] protected bool isAttacking = false;
+
     [Header("References")]
     public ParticleSystem attackParticle;
-    protected float lastAttackTime;
+
+    [Header("Animation")]
+    [SerializeField] protected Animator animator;
+    [SerializeField] protected float lastAttackTime;
+
+    [Header("Hitbox")]
+    public Collider headCollider;
 
     protected Transform player;
     protected Rigidbody rb;
+
+    bool isMoving;
+    Vector3 lastPosition;
+
+    enum EnemyState
+    {
+        Idle,
+        Chase,
+        Attack,
+        Return
+    }
+
+    EnemyState state;
 
     protected virtual void Start()
     {
         currentHealth = maxHealth;
         initialPosition = transform.position;
         rb = GetComponent<Rigidbody>();
+
+        animator = GetComponentInChildren<Animator>();
+        lastPosition = transform.position;
         // Mencari player menggunakan tag. Pastikan objek player kamu punya tag "Player"
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
@@ -34,29 +60,63 @@ public class EnemyBase : MonoBehaviour
     {
         if (player == null) return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        float distance = Vector3.Distance(transform.position, player.position);
 
-        if (distanceToPlayer <= attackRadius)
+        switch (state)
         {
-            AttackPlayer();
+            case EnemyState.Idle:
+                if (distance <= chaseRadius)
+                    state = EnemyState.Chase;
+                break;
+
+            case EnemyState.Chase:
+                if (distance <= attackRadius)
+                    state = EnemyState.Attack;
+                else if (distance > chaseRadius + 2f)
+                    state = EnemyState.Return;
+                break;
+
+            case EnemyState.Attack:
+                if (distance > attackRadius)
+                    state = EnemyState.Chase;
+                break;
+
+            case EnemyState.Return:
+                if (Vector3.Distance(transform.position, initialPosition) < 1f)
+                    state = EnemyState.Idle;
+                break;
         }
-        else if (distanceToPlayer <= chaseRadius)
+
+        UpdateState();
+        UpdateAnimator();
+    }
+    void UpdateState()
+    {
+        switch (state)
         {
-            ChasePlayer();
-        }else if(distanceToPlayer > chaseRadius)
-        {
-            BackToInitialPosition();
+            case EnemyState.Attack:
+                AttackPlayer();
+                break;
+
+            case EnemyState.Chase:
+                ChasePlayer();
+                break;
+
+            case EnemyState.Return:
+                BackToInitialPosition();
+                break;
         }
     }
 
     protected virtual void BackToInitialPosition()
     {
+        isMoving = true;
         Vector3 direction = (initialPosition - transform.position).normalized;
-        direction.y = 0; 
+        direction.y = 0;
         if (direction != Vector3.zero) transform.rotation = Quaternion.LookRotation(direction);
 
         Vector3 movePosition = transform.position + transform.forward * moveSpeed * Time.deltaTime;
-        if(Vector3.Distance(transform.position, initialPosition) < 1f)
+        if (Vector3.Distance(transform.position, initialPosition) < 1f)
         {
             // transform.position = initialPosition; 
         }
@@ -68,6 +128,7 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void ChasePlayer()
     {
+        isMoving = true;
         // Melihat ke arah player
         Vector3 direction = (player.position - transform.position).normalized;
         direction.y = 0; // Agar musuh tidak mendongak ke atas jika player melompat
@@ -75,7 +136,7 @@ public class EnemyBase : MonoBehaviour
 
         // Bergerak maju
         Vector3 movePosition = transform.position + transform.forward * moveSpeed * Time.deltaTime;
-        if(Vector3.Distance(transform.position, player.position) <= attackRadius)
+        if (Vector3.Distance(transform.position, player.position) <= attackRadius)
         {
             // transform.position = player.position; 
         }
@@ -87,15 +148,23 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void AttackPlayer()
     {
+        isMoving = false;
         if (Time.time >= lastAttackTime + attackCooldown)
         {
             AudioManager.instance.PlayEnemyAttack();
             // Lakukan serangan (misal: panggil fungsi TakeDamage di script Player)
             Debug.Log("Musuh menyerang player!");
-            
+            isAttacking = true;
+            animator.SetTrigger("Attack");
+            Invoke(nameof(ResetAttack), 0.6f);
+
             lastAttackTime = Time.time;
             ToggleAttackParticle();
         }
+    }
+    void ResetAttack()
+    {
+        isAttacking = false;
     }
 
     public virtual void TakeDamage(int damage)
@@ -106,13 +175,15 @@ public class EnemyBase : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            Die();
+            StartCoroutine(Die());
         }
     }
 
-    protected virtual void Die()
+    protected virtual IEnumerator Die()
     {
         Debug.Log(gameObject.name + " mati.");
+        animator.SetTrigger("Dead");
+        yield return new WaitForSeconds(0.5f);
         Destroy(gameObject);
     }
 
@@ -140,12 +211,12 @@ public class EnemyBase : MonoBehaviour
             {
                 Debug.Log("Player menginjak musuh dari atas!");
                 TakeDamage(maxHealth); // Langsung mati (atau beri damage tertentu)
-                
+
                 // Opsional: Bikin player memantul ke atas setelah menginjak
                 Rigidbody playerRb = collision.gameObject.GetComponent<Rigidbody>();
                 if (playerRb != null)
                 {
-                    playerRb.linearVelocity = new Vector3(playerRb.linearVelocity.x*0.5f, 0, playerRb.linearVelocity.z*0.5f);
+                    playerRb.linearVelocity = new Vector3(playerRb.linearVelocity.x * 0.5f, 0, playerRb.linearVelocity.z * 0.5f);
                     // playerRb.AddForce(Vector3.up * 6f, ForceMode.Impulse);
                     player.GetComponent<PlayerMovement>().TryJump(false);
                 }
@@ -154,8 +225,19 @@ public class EnemyBase : MonoBehaviour
             {
                 // Jika disentuh dari samping, musuh yang menyerang player
                 Debug.Log("Player nabrak dari samping! Player yang kena damage.");
-                // collision.gameObject.GetComponent<PlayerScript>().TakeDamage(attackDamage);
+                collision.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
             }
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!isAttacking) return;
+        if (!other.CompareTag("Player")) return;
+
+        // cek apakah yang kena itu head collider
+        if (other == headCollider)
+        {
+            other.GetComponent<Player>()?.TakeDamage(attackDamage);
         }
     }
 
@@ -166,5 +248,15 @@ public class EnemyBase : MonoBehaviour
             if (!attackParticle.isPlaying) attackParticle.Play();
             else attackParticle.Stop();
         }
+    }
+
+    protected virtual void UpdateAnimator()
+    {
+        if (animator == null) return;
+
+        animator.SetBool("IsMoving",
+            state == EnemyState.Chase ||
+            state == EnemyState.Return
+        );
     }
 }
