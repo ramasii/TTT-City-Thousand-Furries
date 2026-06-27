@@ -38,6 +38,7 @@ public class WallRunning : MonoBehaviour
 
     [Header("References")]
     public Transform orientation;
+    public Animator playerAnimator;
     PlayerMovement pm;
     Rigidbody rb;
     public ThirdPersonCam thirdPersonCam;
@@ -178,6 +179,7 @@ public class WallRunning : MonoBehaviour
 
     void StartWallRun()
     {
+        playerAnimator.SetBool("WallRunning", true);
         pm.wallRunning = true;
         // wallRunEnergy = maxWallRunEnergy;
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
@@ -239,6 +241,7 @@ public class WallRunning : MonoBehaviour
 
     void StopWallRun()
     {
+        playerAnimator.SetBool("WallRunning", false);
         pm.wallRunning = false;
 
         // reset efek kamera
@@ -274,6 +277,7 @@ public class WallRunning : MonoBehaviour
         rb.AddForce(forceToApply, ForceMode.Impulse);
 
         Debug.Log("Wall Jumped!");
+        playerAnimator.SetTrigger("Jump");
 
         // reset jump input
         jumpInput = false;
