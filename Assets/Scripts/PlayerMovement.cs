@@ -110,6 +110,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext value)
     {
+        if (GetComponent<Player>().isHit) return;
         if (value.started && readyToJump && grounded && state != MovementState.wallRunning)
         {
             readyToJump = false;
@@ -121,6 +122,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void StateHandler()
     {
+        if (GetComponent<Player>().isHit) return;
         // mode wall running
         if (wallRunning)
         {
@@ -177,6 +179,7 @@ public class PlayerMovement : MonoBehaviour
 
     void MovePlayer()
     {
+        if (GetComponent<Player>().isHit) return;
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
         // gerak di tanah
@@ -213,6 +216,10 @@ public class PlayerMovement : MonoBehaviour
 
         Debug.Log("Player Jumped!");
         playerAnimator.SetTrigger("Jump");
+        {
+            Debug.Log("Jump animation triggered.");
+        }
+        ;
 
         // efek visual saat lompat
         PlayStompParticle();
@@ -245,13 +252,13 @@ public class PlayerMovement : MonoBehaviour
     {
         if (playerAnimator == null) return;
 
-        // SPEED (MAG pengganti)
         Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         playerAnimator.SetFloat("Mag", flatVel.magnitude);
 
-        // GROUNDED
-        playerAnimator.SetFloat("VerticalVel", rb.linearVelocity.y);
         playerAnimator.SetBool("Grounded", grounded);
+        playerAnimator.SetBool("WallRunning", wallRunning);
 
+        bool isAir = !grounded && !wallRunning;
+        playerAnimator.SetBool("MidAir", isAir);
     }
 }

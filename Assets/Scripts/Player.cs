@@ -4,10 +4,15 @@ public class Player : MonoBehaviour
 {
     [Header("Stats")]
     [SerializeField] private int maxHealth = 3;
+
+    [Header("Hit State")]
+    public bool isHit;
+    public float hitDuration = 2f;
+    public Animator playerAnimator;
     private int currentHealth;
     [Header("References")]
     [SerializeField] private PlayerMovement playerMovement;
-    
+
     // ===== EVENTS =====
     public delegate void PlayerHealthChanged(int currentHealth, int maxHealth);
     public event PlayerHealthChanged OnPlayerHealthChanged;
@@ -24,13 +29,15 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void TakeDamage(int damage)
     {
+        if (isHit) return; // Jika sedang dalam keadaan hit, abaikan serangan
         currentHealth -= damage;
         OnPlayerHealthChanged?.Invoke(currentHealth, maxHealth);
+        GetHit();
         if (currentHealth <= 0)
         {
             Die();
@@ -44,4 +51,17 @@ public class Player : MonoBehaviour
         // Untuk sementara, kita bisa menghancurkan objek player
         OnPlayerDied?.Invoke();
     }
+    private void GetHit()
+    {
+        isHit = true;
+        playerAnimator.SetTrigger("Hit");
+        StartCoroutine(HitRoutine());
+    }
+    private System.Collections.IEnumerator HitRoutine()
+    {
+        yield return new WaitForSeconds(hitDuration);
+
+        isHit = false;
+    }
+
 }
