@@ -42,8 +42,21 @@ public class PlayerMovement : MonoBehaviour
     bool wasGrounded;
     WallRunning wallRunningScript;
 
-    [Header("Animation")]
+    [Header("Animation Settings")]
     public Animator playerAnimator;
+
+    [Header("Elastic Settings")]
+    [SerializeField] Transform elasticTarget;
+    [SerializeField] private float squishDuration = 0.1f;
+    [SerializeField] private float elasticDuration = 0.5f;
+    
+    [Header("Elastic Fine Tuning")]
+    [Tooltip("Semakin tinggi nilainya, pantulannya semakin ekstrem melebihi batas awal.")]
+    [SerializeField] private float amplitude = 1.2f; 
+    [Tooltip("Semakin kecil nilainya, getaran pegasnya akan semakin cepat/rapat.")]
+    [SerializeField] private float period = 0.4f;
+
+    private Sequence _jellySequence;
 
     public enum MovementState
     {
@@ -228,6 +241,7 @@ public class PlayerMovement : MonoBehaviour
     // mencegah force lompatan biasa dengan lompatan dinding menyatu
     public void TryJump(bool isWallJump)
     {
+        TriggerBoinkEffect(); // Efek visual saat lompat
         if (isWallJump)
         {
             wallRunningScript.WallJump();
@@ -260,5 +274,39 @@ public class PlayerMovement : MonoBehaviour
 
         bool isAir = !grounded && !wallRunning;
         playerAnimator.SetBool("MidAir", isAir);
+    }
+
+    public void TriggerBoinkEffect()
+    {
+        // Kerapian kode: Selalu matikan tween yang sedang berjalan sebelum memulai yang baru 
+        // agar tidak terjadi tumpang tindih (bug visual) jika tombol/mekanik dipicu berkali-kali.
+        if (_jellySequence != null && _jellySequence.IsActive())
+        {
+            _jellySequence.Kill();
+        }
+
+        // Kembalikan ke skala awal (Vector3.one) secara instan sebelum animasi dimulai
+        elasticTarget.localScale = Vector3.one;
+
+        // Buat sequence baru
+        _jellySequence = DOTween.Sequence();
+
+        // FASE 1: Menekan ke bawah (Squish)
+        // Y mengecil ke 0.5, X dan Z melebar ke 1.3 secara cepat dengan Ease.OutQuad
+        Vector3 squishScale = new Vector3(1.3f, 0.5f, 1.3f);
+        _jellySequence.Append(elasticTarget.DOScale(squishScale, squishDuration).SetEase(Ease.OutQuad));
+
+        // FASE 2: Membal balik ke ukuran semula (Stretch & Bounce)
+        // Di sinilah keajaiban Ease.OutElastic bekerja dengan parameter tambahan (amplitude & period)
+        _jellySequence.Append(
+            elasticTarget.DOScale(Vector3.one, elasticDuration)
+            .SetEase(Ease.OutElastic, amplitude, period)
+        );
+    }
+
+    private void OnDestroy()
+    {
+        // Pastikan memory leak aman saat objek dihancurkan
+        if (_jellySequence != null) _jellySequence.Kill();
     }
 }
