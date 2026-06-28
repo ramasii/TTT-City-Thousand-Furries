@@ -5,10 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Mad/SampleScene.unity
     guid: dc16e16fee50cb343ad5ce5645d61791
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Mad/MainMenu.unity
     guid: 09f3f315446dc694984ef706448f7044
   - enabled: 1
