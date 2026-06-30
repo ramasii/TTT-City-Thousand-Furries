@@ -22,6 +22,7 @@ public class UIScript : MonoBehaviour
     [SerializeField] private UIPanelAnimator pausePanelAnimator;
     [SerializeField] private UIPanelAnimator winPanelAnimator;
     [SerializeField] private UIPanelAnimator losePanelAnimator;
+    [SerializeField] private UITimerToPanelTransition timerTransition;
 
     void Start()
     {
@@ -144,6 +145,7 @@ public class UIScript : MonoBehaviour
     {
         ShowCursor();
         winPanel.SetActive(true);
+        timerTransition.PlayTimerTransition();
         // Boleh tambahkan DOTween animasi disini
     }
     public void CloseWinPanel()
