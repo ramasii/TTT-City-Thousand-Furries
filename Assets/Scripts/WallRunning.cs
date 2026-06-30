@@ -75,7 +75,14 @@ public class WallRunning : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (pm.wallRunning)
+        // Cek pm.wallRunning DAN exitingWall agar tidak ada force wall-running tambahan
+        // yang "menyelip" di antara WallJump() dipanggil dan StopWallRun() dipanggil
+        // pada Update() berikutnya. Tanpa cek exitingWall ini, FixedUpdate bisa sempat
+        // menjalankan WallRunningMovement() sekali lagi setelah impulse wall jump
+        // sudah diterapkan, sehingga menambahkan gaya ekstra (termasuk menimpa
+        // kecepatan Y dengan wallClimbSpeed jika upwardsRunning aktif) di atas hasil
+        // wall jump -> inilah penyebab lompatan kadang jadi tiba-tiba lebih tinggi.
+        if (pm.wallRunning && !exitingWall)
         {
             WallRunningMovement();
         }
@@ -262,8 +269,17 @@ public class WallRunning : MonoBehaviour
         exitingWall = true;
         exitWallTimer = exitWallTime;
 
-        // Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
-        // Vector3 forceToApply = transform.up * wallJumpUpForce + wallNormal * wallJumpSideForce;
+        // Matikan pm.wallRunning SEGERA (jangan menunggu StateMachine() Update berikutnya).
+        // Tanpa baris ini, ada celah satu frame di mana pm.wallRunning masih true,
+        // sehingga FixedUpdate() bisa memanggil WallRunningMovement() sekali lagi
+        // SETELAH impulse wall jump diterapkan -> menambahkan force tambahan
+        // (termasuk menimpa kecepatan Y dengan wallClimbSpeed jika tombol climb
+        // sedang ditekan) -> inilah penyebab lompatan kadang tiba-tiba lebih tinggi.
+        pm.wallRunning = false;
+        playerAnimator.SetBool("WallRunning", false);
+        thirdPersonCam.DoFov(50f);
+        thirdPersonCam.DoDutch(0f);
+        pm.DoTiltPlayerObj(0f);
 
         Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
         wallNormal.y = 0f; // Matikan gaya ke atas yang bocor/tidak disengaja
@@ -272,7 +288,6 @@ public class WallRunning : MonoBehaviour
 
         AudioManager.instance.PlayJump();
         // reset velocity y lalu tambahkan force 
-        // rb.linearVelocity = new Vector3(rb.linearVelocity.x / 2, 0, rb.linearVelocity.z / 2);
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         rb.AddForce(forceToApply, ForceMode.Impulse);
 

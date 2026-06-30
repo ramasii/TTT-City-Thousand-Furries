@@ -67,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9c0cc68f8283a9e4b900812f8559a5fa, type: 2}
+  - {fileID: 2100000, guid: 82bf826468548014c964a0b62c26cc0e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -122,6 +122,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7586727240956400153}
+  - component: {fileID: 6373517219620311577}
   m_Layer: 0
   m_Name: Fog
   m_TagString: Untagged
@@ -145,3 +146,17 @@ Transform:
   - {fileID: 7552799410839753877}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6373517219620311577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2445633231727743687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd62f17058a8b2e4aa207378171b7d6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FollowingObject
+  target: {fileID: 0}
+  offset: {x: 0, y: -12, z: 0}
