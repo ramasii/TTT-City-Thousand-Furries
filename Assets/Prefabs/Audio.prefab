@@ -50,6 +50,8 @@ MonoBehaviour:
   playerJump: {fileID: 8300000, guid: 28b944c267d6b3347b20c44dea01a818, type: 3}
   enemyAttack: {fileID: 8300000, guid: 85792d052d89fca4e8fd97aa73dd73ab, type: 3}
   enemyTakeDamage: {fileID: 8300000, guid: 429c947174e487046bcf92c08e6a71c8, type: 3}
+  jumpMinPitch: 0.8
+  jumpMaxPitch: 1.2
 --- !u!1 &9163805791562276378
 GameObject:
   m_ObjectHideFlags: 0

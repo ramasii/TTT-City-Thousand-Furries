@@ -188,7 +188,7 @@ public class WallRunning : MonoBehaviour
     {
         playerAnimator.SetBool("WallRunning", true);
         pm.wallRunning = true;
-        // wallRunEnergy = maxWallRunEnergy;
+        wallRunEnergy = maxWallRunEnergy;
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
         // terapkan efek kamera

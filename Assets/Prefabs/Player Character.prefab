@@ -5059,6 +5059,11 @@ MonoBehaviour:
   dustParticle: {fileID: 8792483415660285175}
   stompParticle: {fileID: 5559842647021175169}
   playerAnimator: {fileID: 1673824057199347521}
+  elasticTarget: {fileID: 8783748634997667212}
+  squishDuration: 0.1
+  elasticDuration: 0.5
+  amplitude: 1.2
+  period: 0.4
 --- !u!114 &1513176095023121967
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5078,9 +5083,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   wallRunForce: 150
-  wallJumpUpForce: 7
-  wallJumpSideForce: 11
-  maxWallRunEnergy: 0.8
+  wallJumpUpForce: 8
+  wallJumpSideForce: 12
+  maxWallRunEnergy: 1
   wallClimbSpeed: 3.5
   wallCheckDistance: 0.7
   minJumpHeight: 1
@@ -5103,7 +5108,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d8e3626cb33c4e47947eef35c0b35ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  maxHealth: 3
   isHit: 0
   hitDuration: 2
   playerAnimator: {fileID: 1673824057199347521}

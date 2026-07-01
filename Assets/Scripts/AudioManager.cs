@@ -13,6 +13,10 @@ public class AudioManager : MonoBehaviour
     public AudioClip enemyAttack;
     public AudioClip enemyTakeDamage;
 
+    [Header("Jump Pitch Settings")]
+    [Range(0.1f, 3f)] public float jumpMinPitch = 0.9f;
+    [Range(0.1f, 3f)] public float jumpMaxPitch = 1.1f;
+
 
     void Awake()
     {
@@ -56,7 +60,21 @@ public class AudioManager : MonoBehaviour
 
     // shortcut biar gampang dipanggil
     public void PlayUIClick() => PlaySFX(uiClick);
-    public void PlayJump() => PlaySFX(playerJump);
     public void PlayEnemyAttack() => PlaySFX(enemyAttack);
     public void PlayEnemyDamage() => PlaySFX(enemyTakeDamage);
+
+    public void PlayJump()
+    {
+        if (playerJump == null) return;
+        if (audioSource == null)
+        {
+            Debug.LogWarning("Cannot play SFX: AudioSource is missing.");
+            return;
+        }
+
+        // Set random pitch, play, lalu reset ke normal
+        audioSource.pitch = Random.Range(jumpMinPitch, jumpMaxPitch);
+        audioSource.PlayOneShot(playerJump);
+        audioSource.pitch = 1f;
+    }
 }
