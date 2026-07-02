@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Cinemachine;
 
 public class Player : MonoBehaviour
 {
@@ -8,11 +9,14 @@ public class Player : MonoBehaviour
     public Animator playerAnimator;
     [Header("References")]
     [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private CinemachineImpulseSource impulseSource;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         playerMovement = GetComponent<PlayerMovement>();
+        if (impulseSource == null)
+            impulseSource = GetComponent<CinemachineImpulseSource>();
     }
 
     // Update is called once per frame
@@ -26,6 +30,13 @@ public class Player : MonoBehaviour
         if (isHit) return; // Jika sedang dalam keadaan hit, abaikan serangan
         GetHit();
         playerMovement.TriggerBoinkEffect(); // Efek visual saat terkena serangan
+        ShakeCamera();
+    }
+
+    // Dipanggil dari DangerousArea saat player jatuh dari gedung
+    public void TriggerFallShake()
+    {
+        ShakeCamera();
     }
 
     private void GetHit()
@@ -39,6 +50,12 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(hitDuration);
 
         isHit = false;
+    }
+
+    private void ShakeCamera()
+    {
+        if (impulseSource != null)
+            impulseSource.GenerateImpulse();
     }
 
 }

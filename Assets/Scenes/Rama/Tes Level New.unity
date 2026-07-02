@@ -6707,6 +6707,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 574953985}
+    - target: {fileID: 5152562881261392682, guid: e5eccc63ea295274c872366d0db4700a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5336178294125404472, guid: e5eccc63ea295274c872366d0db4700a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -11189,6 +11193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 101c045f947741941b5d0bac85751a62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DangerousArea
+  shakeDelay: 0.3
 --- !u!1001 &1137228950
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11696,6 +11701,7 @@ GameObject:
   - component: {fileID: 1231554322}
   - component: {fileID: 1231554323}
   - component: {fileID: 1231554324}
+  - component: {fileID: 1231554325}
   m_Layer: 0
   m_Name: FreeLook Camera
   m_TagString: Untagged
@@ -11997,6 +12003,30 @@ MonoBehaviour:
   FocusTarget: {fileID: 0}
   FocusOffset: 0
   Profile: {fileID: 11400000, guid: ab09877e2e707104187f6f83e2f62510, type: 2}
+--- !u!114 &1231554325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231554315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b2d199b96b516448144ab30fb26aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineImpulseListener
+  ApplyAfter: 2
+  ChannelMask: 1
+  Gain: 1
+  Use2DDistance: 0
+  UseCameraSpace: 1
+  SignalCombinationMode: 0
+  ReactionSettings:
+    m_SecondaryNoise: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    Duration: 1
+    m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1 &1246506181 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5152562881261392682, guid: e5eccc63ea295274c872366d0db4700a, type: 3}
