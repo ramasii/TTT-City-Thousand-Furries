@@ -151,17 +151,28 @@ public class EnemyBase : MonoBehaviour
         isMoving = false;
         if (Time.time >= lastAttackTime + attackCooldown)
         {
-            AudioManager.instance.PlayEnemyAttack();
+            Invoke(nameof(PlayAttackSound), 1.01f);
             // Lakukan serangan (misal: panggil fungsi TakeDamage di script Player)
             Debug.Log("Musuh menyerang player!");
-            isAttacking = true;
+            Invoke(nameof(SetAttack), 1.01f); // Delay sebelum mengaktifkan isAttacking
             animator.SetTrigger("Attack");
-            Invoke(nameof(ResetAttack), 0.6f);
+            Invoke(nameof(ResetAttack), 1.08f);
 
             lastAttackTime = Time.time;
-            ToggleAttackParticle();
+            Invoke(nameof(ToggleAttackParticle), 1.03f); // Delay sebelum memunculkan partikel
         }
     }
+
+    void PlayAttackSound()
+    {
+        AudioManager.instance.PlayEnemyAttack();
+    }
+
+    void SetAttack()
+    {
+        isAttacking = true;
+    }
+
     void ResetAttack()
     {
         isAttacking = false;
@@ -218,27 +229,27 @@ public class EnemyBase : MonoBehaviour
                 {
                     playerRb.linearVelocity = new Vector3(playerRb.linearVelocity.x * 0.5f, 0, playerRb.linearVelocity.z * 0.5f);
                     // playerRb.AddForce(Vector3.up * 6f, ForceMode.Impulse);
-                    player.GetComponent<PlayerMovement>().TryJump(false);
+                    if (player.GetComponent<PlayerMovement>())
+                    {
+                        player.GetComponent<PlayerMovement>().TryJump(false);
+                    }
                 }
             }
             else
             {
                 // Jika disentuh dari samping, musuh yang menyerang player
-                Debug.Log("Player nabrak dari samping! Player yang kena damage.");
-                collision.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
+                // Debug.Log("Player nabrak dari samping! Player yang kena damage.");
+                // collision.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
             }
         }
     }
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("OnTriggerEnter: " + other.name);
         if (!isAttacking) return;
         if (!other.CompareTag("Player")) return;
 
-        // cek apakah yang kena itu head collider
-        if (other == headCollider)
-        {
-            other.GetComponent<Player>()?.TakeDamage(attackDamage);
-        }
+        other.GetComponent<Player>().TakeDamage(attackDamage);
     }
 
     protected virtual void ToggleAttackParticle()

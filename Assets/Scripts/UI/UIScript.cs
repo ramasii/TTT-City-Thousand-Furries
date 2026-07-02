@@ -18,6 +18,12 @@ public class UIScript : MonoBehaviour
     public GameObject pausePanel;
     private bool isPaused;
 
+    [Header("References")]
+    [SerializeField] private UIPanelAnimator pausePanelAnimator;
+    [SerializeField] private UIPanelAnimator winPanelAnimator;
+    [SerializeField] private UIPanelAnimator losePanelAnimator;
+    [SerializeField] private UITimerToPanelTransition timerTransition;
+
     void Start()
     {
         if (pausePanel != null)
@@ -53,6 +59,20 @@ public class UIScript : MonoBehaviour
         }
     }
 
+    // Dipanggil saat pemain menekan Tombol "RESUME"
+    public void ClosePauseMenu()
+    {
+        // Kita panggil HidePanel(). Skrip modular akan memutar animasi keluar dulu,
+        // BARU setelah selesai dia akan otomatis melakukan SetActive(false).
+        pausePanelAnimator.HidePanel(onCompleteCallback: () =>
+        {
+            // Tempatkan kode kelanjutan game di sini (misal: resume physics, hilangkan kursor)
+            Time.timeScale = 1f; 
+            isPaused = false;
+            Debug.Log("Game Resumed!");
+        });
+    }
+
     public void Pause()
     {
         AudioManager.instance.PlayUIClick();
@@ -70,9 +90,7 @@ public class UIScript : MonoBehaviour
         AudioManager.instance.PlayUIClick();
         if (pausePanel == null) return;
 
-        pausePanel.SetActive(false);
-        Time.timeScale = 1f;
-        isPaused = false;
+        ClosePauseMenu(); // Panggil fungsi untuk menutup panel dengan animasi
 
         ShowCursor(false);
     }
@@ -127,7 +145,19 @@ public class UIScript : MonoBehaviour
     {
         ShowCursor();
         winPanel.SetActive(true);
+        timerTransition.PlayTimerTransition();
         // Boleh tambahkan DOTween animasi disini
+    }
+    public void CloseWinPanel()
+    {
+        // Kita panggil HidePanel(). Skrip modular akan memutar animasi keluar dulu,
+        // BARU setelah selesai dia akan otomatis melakukan SetActive(false).
+        winPanelAnimator.HidePanel(onCompleteCallback: () =>
+        {
+            // Tempatkan kode kelanjutan game di sini (misal: resume physics, hilangkan kursor)
+            Time.timeScale = 1f; 
+            Debug.Log("Game Resumed!");
+        });
     }
 
     private void ShowLosePanel()
@@ -137,9 +167,21 @@ public class UIScript : MonoBehaviour
         // Boleh tambahkan DOTween shake effect pada teks "LATE!" disini
     }
 
+    public void CloseLosePanel()
+    {
+        // Kita panggil HidePanel(). Skrip modular akan memutar animasi keluar dulu,
+        // BARU setelah selesai dia akan otomatis melakukan SetActive(false).
+        losePanelAnimator.HidePanel(onCompleteCallback: () =>
+        {
+            // Tempatkan kode kelanjutan game di sini (misal: resume physics, hilangkan kursor)
+            Time.timeScale = 1f; 
+            Debug.Log("Game Resumed!");
+        });
+    }
+
     private void ShowCursor(bool show = true)
     {
         Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = show;
+        Cursor.visible = show ? true : false;
     }
 }

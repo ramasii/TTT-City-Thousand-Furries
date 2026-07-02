@@ -5,17 +5,17 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Mad/SampleScene.unity
     guid: dc16e16fee50cb343ad5ce5645d61791
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Mad/MainMenu.unity
     guid: 09f3f315446dc694984ef706448f7044
   - enabled: 1
-    path: Assets/Scenes/Rama/Tes Level New.unity
-    guid: 5edffedaed29ff949b78b4d7189cdbe8
-  - enabled: 1
     path: Assets/Scenes/Rama/Main Menu New.unity
     guid: 91b1e6cab04acca4aba98d8f483b0786
+  - enabled: 1
+    path: Assets/Scenes/Rama/Tes Level New.unity
+    guid: 5edffedaed29ff949b78b4d7189cdbe8
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

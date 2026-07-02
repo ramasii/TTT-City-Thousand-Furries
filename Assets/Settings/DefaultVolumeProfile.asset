@@ -468,6 +468,7 @@ MonoBehaviour:
   - {fileID: -6288072647309666549}
   - {fileID: 7518938298396184218}
   - {fileID: -1410297666881709256}
+  - {fileID: 4019052994407862656}
 --- !u!114 &853819529557874667
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -824,6 +825,40 @@ MonoBehaviour:
   bladeRotation:
     m_OverrideState: 1
     m_Value: 0
+--- !u!114 &4019052994407862656
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb805670d3777744e9569d4066bf2b18, type: 3}
+  m_Name: OutlineVolume
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineVolume
+  active: 1
+  outlineColor:
+    m_OverrideState: 1
+    m_Value: {r: 0, g: 0, b: 0, a: 1}
+  outlineScale:
+    m_OverrideState: 1
+    m_Value: 3.67
+  distanceFalloff:
+    m_OverrideState: 1
+    m_Value: 5.7
+  minOutlineScale:
+    m_OverrideState: 1
+    m_Value: 1.46
+  depthThreshold:
+    m_OverrideState: 1
+    m_Value: 2.86
+  normalThreshold:
+    m_OverrideState: 1
+    m_Value: 1
+  grazingTolerance:
+    m_OverrideState: 1
+    m_Value: 7
 --- !u!114 &4251301726029935498
 MonoBehaviour:
   m_ObjectHideFlags: 3
