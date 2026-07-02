@@ -13,6 +13,12 @@ public class TextBubble : MonoBehaviour
     [Tooltip("Delay (detik) antar kemunculan huruf saat teks diketik.")]
     [SerializeField] private float letterDelay = 0.05f;
 
+    [Header("Boink Effect Settings")]
+    [Tooltip("Durasi animasi boink (detik).")]
+    [SerializeField] private float boinkDuration = 0.35f;
+    [Tooltip("Seberapa besar overshoot scale saat boink (1 = normal, 1.2 = overshoot 20%).")]
+    [SerializeField] private float boinkOvershoot = 1.25f;
+
     [Header("Visual Settings")]
     [SerializeField] private Vector2 bubbleSize = new Vector2(450f, 160f);
     [SerializeField] private Color backgroundColor = new Color(0.1f, 0.1f, 0.1f, 0.85f);
@@ -25,6 +31,8 @@ public class TextBubble : MonoBehaviour
     private Canvas bubbleCanvas;
     private TextMeshProUGUI tmpText;
     private Image backgroundImage;
+    private RectTransform bubbleRect;
+    private Vector3 baseScale;
 
     private string[] sentences = new string[]
     {
@@ -68,6 +76,10 @@ public class TextBubble : MonoBehaviour
         RectTransform canvasRect = bubbleContainer.GetComponent<RectTransform>();
         canvasRect.sizeDelta = bubbleSize;
         canvasRect.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+
+        bubbleRect = canvasRect;
+        // Skala dasar (final) bubble, dipakai sebagai acuan animasi boink
+        baseScale = new Vector3(0.01f, 0.01f, 0.01f);
 
         GameObject bgObj = new GameObject("Background");
         bgObj.transform.SetParent(bubbleContainer.transform, false);
@@ -179,11 +191,23 @@ public class TextBubble : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         bubbleContainer.SetActive(true);
 
-        foreach (string sentence in sentences)
+        // Boink saat bubble pertama kali muncul
+        yield return StartCoroutine(BoinkRoutine());
+
+        for (int i = 0; i < sentences.Length; i++)
         {
-            yield return StartCoroutine(TypeSentenceRoutine(sentence));
+            // Boink saat ganti kalimat (kecuali kalimat pertama, sudah kena boink munculnya bubble)
+            // if (i > 0)
+            // {
+            //     yield return StartCoroutine(BoinkRoutine());
+            // }
+
+            yield return StartCoroutine(TypeSentenceRoutine(sentences[i]));
             yield return new WaitForSeconds(delayBetweenSentences);
         }
+
+        // Boink kecil sebelum bubble hilang
+        yield return StartCoroutine(BoinkOutRoutine());
 
         Destroy(bubbleContainer);
         Destroy(this);
@@ -198,6 +222,71 @@ public class TextBubble : MonoBehaviour
             tmpText.text += c;
             yield return new WaitForSeconds(letterDelay);
         }
+    }
+
+    // Efek "boink": scale dari kecil -> overshoot -> settle ke ukuran normal
+    private IEnumerator BoinkRoutine()
+    {
+        if (bubbleRect == null) yield break;
+
+        float elapsed = 0f;
+        Vector3 from = baseScale * 0.4f;
+        Vector3 overshoot = baseScale * boinkOvershoot;
+
+        while (elapsed < boinkDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / boinkDuration);
+            // Ease elastic sederhana: cepat naik, overshoot, lalu settle
+            float easedT = EaseOutBack(t);
+            bubbleRect.localScale = Vector3.LerpUnclamped(from, overshoot, easedT);
+            yield return null;
+        }
+
+        bubbleRect.localScale = baseScale;
+    }
+
+    // Efek boink saat bubble akan hilang: sedikit membesar dulu lalu mengecil ke nol
+    private IEnumerator BoinkOutRoutine()
+    {
+        if (bubbleRect == null) yield break;
+
+        // Fase 1: sedikit overshoot membesar (kesan "boink")
+        float elapsed = 0f;
+        float popDuration = boinkDuration * 0.4f;
+        Vector3 popScale = baseScale * boinkOvershoot;
+
+        while (elapsed < popDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / popDuration);
+            bubbleRect.localScale = Vector3.LerpUnclamped(baseScale, popScale, EaseOutBack(t));
+            yield return null;
+        }
+
+        // Fase 2: mengecil ke nol
+        elapsed = 0f;
+        float shrinkDuration = boinkDuration * 0.6f;
+        Vector3 from = bubbleRect.localScale;
+
+        while (elapsed < shrinkDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / shrinkDuration);
+            bubbleRect.localScale = Vector3.LerpUnclamped(from, Vector3.zero, t * t);
+            yield return null;
+        }
+
+        bubbleRect.localScale = Vector3.zero;
+    }
+
+    // Kurva ease-out-back untuk kesan overshoot khas "boink"
+    private float EaseOutBack(float t)
+    {
+        const float c1 = 1.70158f;
+        const float c3 = c1 + 1f;
+        float x = t - 1f;
+        return 1f + c3 * x * x * x + c1 * x * x;
     }
 
     private void OnDestroy()
