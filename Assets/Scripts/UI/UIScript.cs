@@ -11,6 +11,17 @@ public class UIScript : MonoBehaviour
     public Image energyFill;
     public WallRunning wallRunning;
 
+    [Header("Distance Ruler")]
+    [SerializeField] private Transform player;
+    [SerializeField] private Transform finishArea;
+
+    [SerializeField] private RectTransform ruler;
+    [SerializeField] private RectTransform playerIcon;
+    [SerializeField] private UIDistanceAnim distanceAnim;
+
+    private float startDistance;
+    private float maxProgress;
+
     [Header("UI Panels")]
     public GameObject winPanel;
     public GameObject losePanel; // Panel dengan tulisan raksasa "LATE!"
@@ -28,12 +39,17 @@ public class UIScript : MonoBehaviour
     {
         if (pausePanel != null)
             pausePanel.SetActive(false);
+
+        startDistance = Vector3.Distance(player.position, finishArea.position);
+        maxProgress = 0f;
     }
 
     void Update()
     {
         UpdateEnergyUI();
-        if(GameManager.Instance.CurrentState == GameManager.GameState.Playing)
+        UpdateDistanceRuler();
+
+        if (GameManager.Instance.CurrentState == GameManager.GameState.Playing)
         {
             HandlePauseInput();
         }
@@ -67,7 +83,7 @@ public class UIScript : MonoBehaviour
         pausePanelAnimator.HidePanel(onCompleteCallback: () =>
         {
             // Tempatkan kode kelanjutan game di sini (misal: resume physics, hilangkan kursor)
-            Time.timeScale = 1f; 
+            Time.timeScale = 1f;
             isPaused = false;
             Debug.Log("Game Resumed!");
         });
@@ -155,7 +171,7 @@ public class UIScript : MonoBehaviour
         winPanelAnimator.HidePanel(onCompleteCallback: () =>
         {
             // Tempatkan kode kelanjutan game di sini (misal: resume physics, hilangkan kursor)
-            Time.timeScale = 1f; 
+            Time.timeScale = 1f;
             Debug.Log("Game Resumed!");
         });
     }
@@ -174,7 +190,7 @@ public class UIScript : MonoBehaviour
         losePanelAnimator.HidePanel(onCompleteCallback: () =>
         {
             // Tempatkan kode kelanjutan game di sini (misal: resume physics, hilangkan kursor)
-            Time.timeScale = 1f; 
+            Time.timeScale = 1f;
             Debug.Log("Game Resumed!");
         });
     }
@@ -183,5 +199,36 @@ public class UIScript : MonoBehaviour
     {
         Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = show ? true : false;
+    }
+
+    private void UpdateDistanceRuler()
+    {
+        if (player == null ||
+            finishArea == null ||
+            ruler == null ||
+            playerIcon == null)
+            return;
+
+        float currentDistance = Vector3.Distance(player.position, finishArea.position);
+
+        float progress = 1f - (currentDistance / startDistance);
+
+        progress = Mathf.Clamp01(progress);
+
+        // Simpan progress tertinggi agar icon tidak mundur
+        if (progress > maxProgress)
+        {
+            maxProgress = progress;
+
+            if (distanceAnim != null)
+                distanceAnim.TriggerMoveEffect();
+        }
+
+        float width = ruler.rect.width;
+
+        playerIcon.anchoredPosition = new Vector2(
+            width * maxProgress - width * 0.5f,
+            playerIcon.anchoredPosition.y
+        );
     }
 }

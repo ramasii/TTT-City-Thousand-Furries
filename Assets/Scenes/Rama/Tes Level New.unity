@@ -2143,6 +2143,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7493355144365725198, guid: c194cc9cea9af284b8202f3182aa6f2a, type: 3}
   m_PrefabInstance: {fileID: 366432495}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &369113099 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6864224348760415140, guid: 729a79665f377fc46a52ee59676cc1db, type: 3}
+  m_PrefabInstance: {fileID: 7861021700330770270}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &386572897
 Mesh:
   m_ObjectHideFlags: 0
@@ -4865,6 +4870,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2291545115470459242, guid: 61efad908761c4e41a448c740e6d6386, type: 3}
   m_PrefabInstance: {fileID: 996449625}
   m_PrefabAsset: {fileID: 0}
+--- !u!224 &646648602 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2251645140581566400, guid: e5eccc63ea295274c872366d0db4700a, type: 3}
+  m_PrefabInstance: {fileID: 752318183}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &648556916
 Mesh:
   m_ObjectHideFlags: 0
@@ -7428,6 +7438,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5724f47a1d7764040bb7156ea5a1fa67, type: 3}
+--- !u!224 &832540217 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6170727379180700008, guid: e5eccc63ea295274c872366d0db4700a, type: 3}
+  m_PrefabInstance: {fileID: 752318183}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -11570,6 +11585,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6029547569438015907, guid: 9adb0eabfd01e5142a0619f682f40359, type: 3}
   m_PrefabInstance: {fileID: 1183993927}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1195372318 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8510987578523469321, guid: e5eccc63ea295274c872366d0db4700a, type: 3}
+  m_PrefabInstance: {fileID: 752318183}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e9d44ab583d9694ebb3073136e6e1f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIDistanceAnim
 --- !u!4 &1202167540 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8968386400032654570, guid: 64575eebb1a74064f846860dda05aa96, type: 3}
@@ -18609,6 +18635,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
+      propertyPath: ruler
+      value: 
+      objectReference: {fileID: 646648602}
+    - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 6711685951857214441}
+    - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
       propertyPath: winPanel
       value: 
       objectReference: {fileID: 1246506181}
@@ -18625,13 +18659,25 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 623027329}
     - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
+      propertyPath: finishArea
+      value: 
+      objectReference: {fileID: 369113099}
+    - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
       propertyPath: pausePanel
       value: 
       objectReference: {fileID: 1819855909}
     - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
+      propertyPath: playerIcon
+      value: 
+      objectReference: {fileID: 832540217}
+    - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
       propertyPath: wallRunning
       value: 
       objectReference: {fileID: 6711685951857214447}
+    - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
+      propertyPath: distanceAnim
+      value: 
+      objectReference: {fileID: 1195372318}
     - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
       propertyPath: timerTransition
       value: 
