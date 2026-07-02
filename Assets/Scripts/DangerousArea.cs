@@ -34,6 +34,7 @@ public class DangerousArea : MonoBehaviour
     private IEnumerator LoseGameAfterShake()
     {
         yield return new WaitForSecondsRealtime(shakeDelay);
-        GameManager.Instance.LoseGame(); // Call the LoseGame method from GameManager
+        // Alasan kalah: FellOff, supaya UI menampilkan "Fell Off Panel Parent"
+        GameManager.Instance.LoseGame(GameManager.LoseReason.FellOff);
     }
 }
