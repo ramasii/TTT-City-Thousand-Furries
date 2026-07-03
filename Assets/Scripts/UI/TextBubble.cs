@@ -36,7 +36,7 @@ public class TextBubble : MonoBehaviour
 
     private string[] sentences = new string[]
     {
-        "Oh no, im late!",
+        "Oh no, I'm late!",
         "It's 5 minutes left until school gate is closed.",
         "I must look for alternative way."
     };
