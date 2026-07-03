@@ -29,7 +29,7 @@ public class WallRunning : MonoBehaviour
     public float detectionHeight;
     RaycastHit leftWallHit;
     RaycastHit rightWallHit;
-    RaycastHit frontWallHit;
+    // RaycastHit frontWallHit;
     bool wallLeft;
     bool wallRight;
     bool wallFront;
@@ -130,7 +130,7 @@ public class WallRunning : MonoBehaviour
         Vector3 rayOrigin = transform.position + rayOffset;
         wallRight = Physics.Raycast(rayOrigin, orientation.right + rayOffset, out rightWallHit, wallCheckDistance, wallLayer);
         wallLeft = Physics.Raycast(rayOrigin, -orientation.right + rayOffset, out leftWallHit, wallCheckDistance, wallLayer);
-        wallFront = Physics.Raycast(rayOrigin, (orientation.forward * 0.75f) + rayOffset, out frontWallHit, wallCheckDistance);
+        // wallFront = Physics.Raycast(rayOrigin, (orientation.forward * 0.75f) + rayOffset, out frontWallHit, wallCheckDistance);
     }
 
     bool AboveGround()
@@ -153,6 +153,28 @@ public class WallRunning : MonoBehaviour
 
     void StateMachine()
     {
+        // === WALL JUMP INDEPENDEN ===
+        // Diletakkan paling atas StateMachine() dan dievaluasi SEBELUM state wall-running/exiting
+        // di bawah. Sengaja dipisah dari alur wall-running lama supaya player bisa wall jump
+        // hanya bermodal wallLeft/wallRight mendeteksi dinding -> TIDAK perlu sedang wall running
+        // dan TIDAK perlu menekan W (verticalInput) sama sekali.
+        //
+        // PENTING: jumpInput di-CONSUME (direset ke false) di SETIAP frame begitu dibaca di sini,
+        // apa pun hasilnya (kena dinding atau tidak). Sebelumnya jumpInput cuma direset di dalam
+        // WallJump(), jadi kalau kamu jump biasa di tanah, jumpInput ikut jadi true dan NYANGKUT
+        // (gak pernah balik false karena WallJump() gak kepanggil) sampai suatu saat kamu nyentuh
+        // dinding -> baru "meledak" jadi wall jump otomatis walau space udah lama dilepas.
+        // Consume-per-frame ini yang menutup bug tsb: jumpInput cuma valid selama 1 frame setelah
+        // ditekan, persis seperti flag input sekali-pakai seharusnya.
+        if (jumpInput)
+        {
+            if ((wallLeft || wallRight) && !exitingWall && AboveGround())
+            {
+                pm.TryJump(true);
+            }
+            jumpInput = false;
+        }
+
         // ambil normal dinding yang sedang disentuh
         Vector3 currentNormal = Vector3.zero;
         Transform currentWall = null;
@@ -189,9 +211,6 @@ public class WallRunning : MonoBehaviour
                     exitingWall = true;
                     exitWallTimer = exitWallTime;
                 }
-
-                // wall jump
-                if (jumpInput && !exitingWall) pm.TryJump(true);
             }
 
         }
@@ -330,7 +349,7 @@ public class WallRunning : MonoBehaviour
         Debug.Log("Wall Jumped!");
         playerAnimator.SetTrigger("Jump");
 
-        // reset jump input
+        // reset jump input (jaga-jaga, walau sekarang sudah selalu dikonsumsi di StateMachine juga)
         jumpInput = false;
     }
 
@@ -356,9 +375,11 @@ public class WallRunning : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext value)
     {
-        if (pm.wallRunning)
-        {
-            if (value.started) jumpInput = true;
-        }
+        // Jump input ditangkap kapan pun tombol jump ditekan, TIDAK digerbang oleh pm.wallRunning.
+        // Ini yang memungkinkan wall jump terjadi walau player belum/tidak sedang wall-running.
+        // Flag ini bersifat sekali-pakai per frame -> selalu dikonsumsi (direset ke false) di
+        // StateMachine() pada Update() berikutnya, apa pun hasilnya, supaya tidak ada input jump
+        // "nyangkut" dari lompatan biasa yang baru meledak jadi wall jump saat nyentuh dinding nanti.
+        if (value.started) jumpInput = true;
     }
 }
