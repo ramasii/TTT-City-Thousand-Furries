@@ -224,7 +224,8 @@ public class TextBubble : MonoBehaviour
         Destroy(bubbleContainer);
         bubbleContainer = null;
         Destroy(this);
-
+    }
+    
     // Menampilkan kalimat huruf demi huruf sesuai letterDelay
     private IEnumerator TypeSentenceRoutine(string sentence)
     {
