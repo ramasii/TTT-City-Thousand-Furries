@@ -2064,7 +2064,7 @@ MonoBehaviour:
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
   m_Cameras: []
-  m_RendererIndex: 1
+  m_RendererIndex: 0
   m_VolumeLayerMask:
     serializedVersion: 2
     m_Bits: 1
@@ -5513,7 +5513,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2517753506987936630, guid: ee557d61a075f28438fb18bdc99d87d3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9.712859
+      value: 8.01
       objectReference: {fileID: 0}
     - target: {fileID: 2517753506987936630, guid: ee557d61a075f28438fb18bdc99d87d3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -7818,7 +7818,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2517753506987936630, guid: ee557d61a075f28438fb18bdc99d87d3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 27.961966
+      value: 27.71
       objectReference: {fileID: 0}
     - target: {fileID: 2517753506987936630, guid: ee557d61a075f28438fb18bdc99d87d3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -17974,7 +17974,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2517753506987936630, guid: ee557d61a075f28438fb18bdc99d87d3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 13.212859
+      value: 12.07
       objectReference: {fileID: 0}
     - target: {fileID: 2517753506987936630, guid: ee557d61a075f28438fb18bdc99d87d3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -19097,7 +19097,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2517753506987936630, guid: ee557d61a075f28438fb18bdc99d87d3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 18.58286
+      value: 17.79
       objectReference: {fileID: 0}
     - target: {fileID: 2517753506987936630, guid: ee557d61a075f28438fb18bdc99d87d3, type: 3}
       propertyPath: m_LocalPosition.y
