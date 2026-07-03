@@ -33,6 +33,7 @@ public class TextBubble : MonoBehaviour
     private Image backgroundImage;
     private RectTransform bubbleRect;
     private Vector3 baseScale;
+    private bool isClosing;
 
     private string[] sentences = new string[]
     {
@@ -86,15 +87,6 @@ public class TextBubble : MonoBehaviour
         backgroundImage = bgObj.AddComponent<Image>();
         backgroundImage.sprite = CreateRoundedSprite((int)bubbleSize.x, (int)bubbleSize.y, 30, backgroundColor);
         backgroundImage.type = Image.Type.Simple;
-
-        // Ganti bagian pembuatan material di CreateBubbleUI menjadi:
-        Material uiMat = new Material(Shader.Find("UI/Unlit/Transparent")); 
-
-        // Aktifkan Alpha Testing
-        uiMat.EnableKeyword("_ALPHATEST_ON");
-        uiMat.SetFloat("_AlphaCutoff", 0.5f); // Potong semua yang alpha-nya di bawah 0.5
-
-        backgroundImage.material = uiMat;
 
         RectTransform bgRect = bgObj.GetComponent<RectTransform>();
         bgRect.anchorMin = Vector2.zero;
@@ -209,21 +201,29 @@ public class TextBubble : MonoBehaviour
         // Boink kecil sebelum bubble hilang
         yield return StartCoroutine(BoinkOutRoutine());
 
-        // Cleanup runtime-generated assets to avoid leaks
-        if (backgroundImage != null)
-        {
-            var mat = backgroundImage.material;
-            var sprite = backgroundImage.sprite;
-            var tex = sprite != null ? sprite.texture : null;
+        CloseBubble();
+    }
 
-            if (mat != null) Destroy(mat);
-            if (sprite != null) Destroy(sprite);
-            if (tex != null) Destroy(tex);
+    private void CloseBubble()
+    {
+        if (isClosing)
+        {
+            return;
         }
 
-        Destroy(bubbleContainer);
-        bubbleContainer = null;
-        Destroy(this);
+        isClosing = true;
+
+        if (bubbleContainer != null)
+        {
+            bubbleContainer.SetActive(false);
+            Destroy(bubbleContainer);
+            bubbleContainer = null;
+        }
+
+        if (this != null)
+        {
+            Destroy(this);
+        }
     }
     
     // Menampilkan kalimat huruf demi huruf sesuai letterDelay
@@ -307,6 +307,11 @@ public class TextBubble : MonoBehaviour
         if (bubbleContainer != null)
         {
             Destroy(bubbleContainer);
+        }
+
+        if (backgroundImage != null)
+        {
+            Destroy(backgroundImage.sprite);
         }
     }
 }
