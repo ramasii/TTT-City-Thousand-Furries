@@ -12,9 +12,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameState currentstate;
     public GameState CurrentState { get { return currentstate; } private set { currentstate = value; } }
 
+    // Alasan kekalahan, dipakai UI untuk menentukan panel mana yang tampil
+    public enum LoseReason { TimeOut, FellOff }
+
     // Observer Pattern: Event yang bisa didengarkan oleh skrip lain
     public static event Action OnGameWin;
-    public static event Action OnGameOver;
+    public static event Action<LoseReason> OnGameOver;
 
     private void Awake()
     {
@@ -45,14 +48,14 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f; // Hentikan game
     }
 
-    public void LoseGame()
+    public void LoseGame(LoseReason reason = LoseReason.TimeOut)
     {
         if (CurrentState != GameState.Playing) return; // Cegah terpanggil 2x
 
         CurrentState = GameState.GameOver;
-        OnGameOver?.Invoke(); // Pancarkan event Kalah (Telat)!
-        
-        Debug.Log("Failed: Telat masuk sekolah!");
+        OnGameOver?.Invoke(reason); // Pancarkan event Kalah, sertakan alasannya
+
+        Debug.Log(reason == LoseReason.FellOff ? "Failed: Jatuh dari gedung!" : "Failed: Telat masuk sekolah!");
         Time.timeScale = 0f; // Hentikan game
     }
 }

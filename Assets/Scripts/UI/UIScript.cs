@@ -1,9 +1,8 @@
 using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using UnityEngine.InputSystem;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class UIScript : MonoBehaviour
 {
@@ -24,7 +23,8 @@ public class UIScript : MonoBehaviour
 
     [Header("UI Panels")]
     public GameObject winPanel;
-    public GameObject losePanel; // Panel dengan tulisan raksasa "LATE!"
+    public GameObject losePanel;      // Panel "LATE!" (karena waktu habis)
+    public GameObject fellOffPanel;   // Panel "SPLAT" / "GRAVITY WINS" (karena jatuh)
     public TextMeshProUGUI timerText;
     public GameObject pausePanel;
     private bool isPaused;
@@ -33,10 +33,23 @@ public class UIScript : MonoBehaviour
     [SerializeField] private UIPanelAnimator pausePanelAnimator;
     [SerializeField] private UIPanelAnimator winPanelAnimator;
     [SerializeField] private UIPanelAnimator losePanelAnimator;
+    [SerializeField] private UIPanelAnimator fellOffPanelAnimator; // Animator untuk panel jatuh
     [SerializeField] private UITimerToPanelTransition timerTransition;
 
-    void Start()
+    void OnEnable()
     {
+        // Mulai "mendengarkan" event dari GameManager dan Timer
+        GameManager.OnGameWin += ShowWinPanel;
+        GameManager.OnGameOver += ShowLosePanel;
+        TimerController.OnTimeUpdated += UpdateTimerUI;
+    }
+
+    void OnDisable()
+    {
+        // Berhenti mendengarkan saat objek hancur (Mencegah Memory Leak)
+        GameManager.OnGameWin -= ShowWinPanel;
+        GameManager.OnGameOver -= ShowLosePanel;
+        TimerController.OnTimeUpdated -= UpdateTimerUI;
         if (pausePanel != null)
             pausePanel.SetActive(false);
 
@@ -47,6 +60,14 @@ public class UIScript : MonoBehaviour
     void Update()
     {
         UpdateEnergyUI();
+        HandlePauseInput();
+    }
+
+    void Start()
+    {
+        if (pausePanel != null) pausePanel.SetActive(false);
+        if (losePanel != null) losePanel.SetActive(false);
+        if (fellOffPanel != null) fellOffPanel.SetActive(false);
         UpdateDistanceRuler();
 
         if (GameManager.Instance.CurrentState == GameManager.GameState.Playing)
@@ -136,22 +157,6 @@ public class UIScript : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    private void OnEnable()
-    {
-        // Mulai "mendengarkan" event dari GameManager dan Timer
-        GameManager.OnGameWin += ShowWinPanel;
-        GameManager.OnGameOver += ShowLosePanel;
-        TimerController.OnTimeUpdated += UpdateTimerUI;
-    }
-
-    private void OnDisable()
-    {
-        // Berhenti mendengarkan saat objek hancur (Mencegah Memory Leak)
-        GameManager.OnGameWin -= ShowWinPanel;
-        GameManager.OnGameOver -= ShowLosePanel;
-        TimerController.OnTimeUpdated -= UpdateTimerUI;
-    }
-
     private void UpdateTimerUI(float timeRemaining)
     {
         timerText.text = Mathf.CeilToInt(timeRemaining).ToString();
@@ -185,20 +190,45 @@ public class UIScript : MonoBehaviour
 
     public void CloseLosePanel()
     {
-        // Kita panggil HidePanel(). Skrip modular akan memutar animasi keluar dulu,
-        // BARU setelah selesai dia akan otomatis melakukan SetActive(false).
-        losePanelAnimator.HidePanel(onCompleteCallback: () =>
+        // Cek panel mana yang sedang menyala, lalu putar animasi kelurnya
+        if (losePanel != null && losePanel.activeSelf)
         {
-            // Tempatkan kode kelanjutan game di sini (misal: resume physics, hilangkan kursor)
-            Time.timeScale = 1f;
-            Debug.Log("Game Resumed!");
-        });
+            losePanelAnimator.HidePanel(onCompleteCallback: ResumeGameCallback);
+        }
+        else if (fellOffPanel != null && fellOffPanel.activeSelf)
+        {
+            fellOffPanelAnimator.HidePanel(onCompleteCallback: ResumeGameCallback);
+        }
+    }
+
+    // Fungsi ini sekarang bereaksi berdasarkan Payload/Parameter dari Event
+    private void ShowLosePanel(GameManager.LoseReason reason)
+    {
+        ShowCursor();
+
+        if (reason == GameManager.LoseReason.TimeOut)
+        {
+            if (losePanel != null) losePanel.SetActive(true);
+            else Debug.LogWarning("losePanel is not assigned in UIScript.");
+        }
+        else if (reason == GameManager.LoseReason.FellOff)
+        {
+            if (fellOffPanel != null) fellOffPanel.SetActive(true);
+            else Debug.LogWarning("fellOffPanel is not assigned in UIScript.");
+        }
+    }
+
+    // Pisahkan logika resume ke fungsi sendiri agar kode lebih DRY (Don't Repeat Yourself)
+    private void ResumeGameCallback()
+    {
+        Time.timeScale = 1f; 
+        Debug.Log("Game Resumed!");
     }
 
     private void ShowCursor(bool show = true)
     {
         Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = show ? true : false;
+        Cursor.visible = show;
     }
 
     private void UpdateDistanceRuler()
