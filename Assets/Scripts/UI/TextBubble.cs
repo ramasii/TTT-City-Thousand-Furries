@@ -209,9 +209,21 @@ public class TextBubble : MonoBehaviour
         // Boink kecil sebelum bubble hilang
         yield return StartCoroutine(BoinkOutRoutine());
 
+        // Cleanup runtime-generated assets to avoid leaks
+        if (backgroundImage != null)
+        {
+            var mat = backgroundImage.material;
+            var sprite = backgroundImage.sprite;
+            var tex = sprite != null ? sprite.texture : null;
+
+            if (mat != null) Destroy(mat);
+            if (sprite != null) Destroy(sprite);
+            if (tex != null) Destroy(tex);
+        }
+
         Destroy(bubbleContainer);
+        bubbleContainer = null;
         Destroy(this);
-    }
 
     // Menampilkan kalimat huruf demi huruf sesuai letterDelay
     private IEnumerator TypeSentenceRoutine(string sentence)
