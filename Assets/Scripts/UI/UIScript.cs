@@ -180,21 +180,21 @@ public class UIScript : MonoBehaviour
     }
 
     // Fungsi ini sekarang bereaksi berdasarkan Payload/Parameter dari Event
-    private void ShowLosePanel(GameManager.LoseReason reason)
+private void ShowLosePanel(GameManager.LoseReason reason)
+{
+    ShowCursor();
+
+    if (reason == GameManager.LoseReason.TimeOut)
     {
-        ShowCursor();
-        
-        if (reason == GameManager.LoseReason.TimeOut)
-        {
-            losePanel.SetActive(true);
-            // DOTween shake effect untuk teks "LATE!"
-        }
-        else if (reason == GameManager.LoseReason.FellOff)
-        {
-            fellOffPanel.SetActive(true);
-            // DOTween bounce/shake effect untuk teks "GRAVITY WINS!"
-        }
+        if (losePanel != null) losePanel.SetActive(true);
+        else Debug.LogWarning("losePanel is not assigned in UIScript.");
     }
+    else if (reason == GameManager.LoseReason.FellOff)
+    {
+        if (fellOffPanel != null) fellOffPanel.SetActive(true);
+        else Debug.LogWarning("fellOffPanel is not assigned in UIScript.");
+    }
+}
 
     // Pisahkan logika resume ke fungsi sendiri agar kode lebih DRY (Don't Repeat Yourself)
     private void ResumeGameCallback()
