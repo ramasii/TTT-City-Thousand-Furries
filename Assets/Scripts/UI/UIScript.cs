@@ -52,15 +52,13 @@ public class UIScript : MonoBehaviour
         TimerController.OnTimeUpdated -= UpdateTimerUI;
         if (pausePanel != null)
             pausePanel.SetActive(false);
-
-        startDistance = Vector3.Distance(player.position, finishArea.position);
-        maxProgress = 0f;
     }
 
     void Update()
     {
         UpdateEnergyUI();
         HandlePauseInput();
+        UpdateDistanceRuler();
     }
 
     void Start()
@@ -68,6 +66,13 @@ public class UIScript : MonoBehaviour
         if (pausePanel != null) pausePanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
         if (fellOffPanel != null) fellOffPanel.SetActive(false);
+
+        if (player != null && finishArea != null)
+        {
+            startDistance = Vector3.Distance(player.position, finishArea.position);
+            maxProgress = 0f;
+        }
+
         UpdateDistanceRuler();
 
         if (GameManager.Instance.CurrentState == GameManager.GameState.Playing)
