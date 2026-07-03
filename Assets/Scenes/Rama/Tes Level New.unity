@@ -18891,12 +18891,13 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6711685951857214447}
     - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
-      propertyPath: fellOffPanel
-      value: 
-      objectReference: {fileID: 26839613}
       propertyPath: distanceAnim
       value: 
       objectReference: {fileID: 1195372318}
+    - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
+      propertyPath: fellOffPanel
+      value: 
+      objectReference: {fileID: 26839613}
     - target: {fileID: 868948469810926080, guid: 027ab72c1bf736843bafc109aaf9f253, type: 3}
       propertyPath: timerTransition
       value: 
