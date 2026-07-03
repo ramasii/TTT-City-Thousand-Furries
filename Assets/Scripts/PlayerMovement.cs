@@ -49,10 +49,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Transform elasticTarget;
     [SerializeField] private float squishDuration = 0.1f;
     [SerializeField] private float elasticDuration = 0.5f;
-    
+
     [Header("Elastic Fine Tuning")]
     [Tooltip("Semakin tinggi nilainya, pantulannya semakin ekstrem melebihi batas awal.")]
-    [SerializeField] private float amplitude = 1.2f; 
+    [SerializeField] private float amplitude = 1.2f;
     [Tooltip("Semakin kecil nilainya, getaran pegasnya akan semakin cepat/rapat.")]
     [SerializeField] private float period = 0.4f;
 
@@ -99,6 +99,7 @@ public class PlayerMovement : MonoBehaviour
             rb.linearDamping = 0;
         }
         UpdateAnimator();
+        HandleFootstepSound();
     }
 
     void OnDrawGizmosSelected()
@@ -274,6 +275,29 @@ public class PlayerMovement : MonoBehaviour
 
         bool isAir = !grounded && !wallRunning;
         playerAnimator.SetBool("MidAir", isAir);
+    }
+
+    private void HandleFootstepSound()
+    {
+        if (GetComponent<Player>().isHit)
+        {
+            AudioManager.instance.StopRun();
+            return;
+        }
+        bool isMoving =
+            grounded &&
+            !wallRunning &&
+            rb.linearVelocity.magnitude > 0.5f &&
+            (Mathf.Abs(horizontalInput) > 0.1f || Mathf.Abs(verticalInput) > 0.1f);
+
+        if (isMoving)
+        {
+            AudioManager.instance.PlayRun();
+        }
+        else
+        {
+            AudioManager.instance.StopRun();
+        }
     }
 
     public void TriggerBoinkEffect()

@@ -170,6 +170,7 @@ public class UIScript : MonoBehaviour
     private void ShowWinPanel()
     {
         ShowCursor();
+        AudioManager.instance.PlayCompleatedSound();
         winPanel.SetActive(true);
         timerTransition.PlayTimerTransition();
         // Boleh tambahkan DOTween animasi disini
@@ -210,14 +211,17 @@ public class UIScript : MonoBehaviour
     private void ShowLosePanel(GameManager.LoseReason reason)
     {
         ShowCursor();
+        AudioManager.instance.StopBGM();
 
         if (reason == GameManager.LoseReason.TimeOut)
         {
+            AudioManager.instance.PlayBellRing();
             if (losePanel != null) losePanel.SetActive(true);
             else Debug.LogWarning("losePanel is not assigned in UIScript.");
         }
         else if (reason == GameManager.LoseReason.FellOff)
         {
+            AudioManager.instance.PlayFallOff();
             if (fellOffPanel != null) fellOffPanel.SetActive(true);
             else Debug.LogWarning("fellOffPanel is not assigned in UIScript.");
         }
@@ -226,7 +230,7 @@ public class UIScript : MonoBehaviour
     // Pisahkan logika resume ke fungsi sendiri agar kode lebih DRY (Don't Repeat Yourself)
     private void ResumeGameCallback()
     {
-        Time.timeScale = 1f; 
+        Time.timeScale = 1f;
         Debug.Log("Game Resumed!");
     }
 
