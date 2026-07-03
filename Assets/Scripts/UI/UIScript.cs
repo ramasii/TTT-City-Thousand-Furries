@@ -10,6 +10,17 @@ public class UIScript : MonoBehaviour
     public Image energyFill;
     public WallRunning wallRunning;
 
+    [Header("Distance Ruler")]
+    [SerializeField] private Transform player;
+    [SerializeField] private Transform finishArea;
+
+    [SerializeField] private RectTransform ruler;
+    [SerializeField] private RectTransform playerIcon;
+    [SerializeField] private UIDistanceAnim distanceAnim;
+
+    private float startDistance;
+    private float maxProgress;
+
     [Header("UI Panels")]
     public GameObject winPanel;
     public GameObject losePanel;      // Panel "LATE!" (karena waktu habis)
@@ -39,6 +50,11 @@ public class UIScript : MonoBehaviour
         GameManager.OnGameWin -= ShowWinPanel;
         GameManager.OnGameOver -= ShowLosePanel;
         TimerController.OnTimeUpdated -= UpdateTimerUI;
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+
+        startDistance = Vector3.Distance(player.position, finishArea.position);
+        maxProgress = 0f;
     }
 
     void Update()
@@ -52,6 +68,12 @@ public class UIScript : MonoBehaviour
         if (pausePanel != null) pausePanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
         if (fellOffPanel != null) fellOffPanel.SetActive(false);
+        UpdateDistanceRuler();
+
+        if (GameManager.Instance.CurrentState == GameManager.GameState.Playing)
+        {
+            HandlePauseInput();
+        }
     }
 
     // ================= ENERGY =================
@@ -82,7 +104,7 @@ public class UIScript : MonoBehaviour
         pausePanelAnimator.HidePanel(onCompleteCallback: () =>
         {
             // Tempatkan kode kelanjutan game di sini (misal: resume physics, hilangkan kursor)
-            Time.timeScale = 1f; 
+            Time.timeScale = 1f;
             isPaused = false;
             Debug.Log("Game Resumed!");
         });
@@ -154,7 +176,7 @@ public class UIScript : MonoBehaviour
         winPanelAnimator.HidePanel(onCompleteCallback: () =>
         {
             // Tempatkan kode kelanjutan game di sini (misal: resume physics, hilangkan kursor)
-            Time.timeScale = 1f; 
+            Time.timeScale = 1f;
             Debug.Log("Game Resumed!");
         });
     }
@@ -180,21 +202,21 @@ public class UIScript : MonoBehaviour
     }
 
     // Fungsi ini sekarang bereaksi berdasarkan Payload/Parameter dari Event
-private void ShowLosePanel(GameManager.LoseReason reason)
-{
-    ShowCursor();
+    private void ShowLosePanel(GameManager.LoseReason reason)
+    {
+        ShowCursor();
 
-    if (reason == GameManager.LoseReason.TimeOut)
-    {
-        if (losePanel != null) losePanel.SetActive(true);
-        else Debug.LogWarning("losePanel is not assigned in UIScript.");
+        if (reason == GameManager.LoseReason.TimeOut)
+        {
+            if (losePanel != null) losePanel.SetActive(true);
+            else Debug.LogWarning("losePanel is not assigned in UIScript.");
+        }
+        else if (reason == GameManager.LoseReason.FellOff)
+        {
+            if (fellOffPanel != null) fellOffPanel.SetActive(true);
+            else Debug.LogWarning("fellOffPanel is not assigned in UIScript.");
+        }
     }
-    else if (reason == GameManager.LoseReason.FellOff)
-    {
-        if (fellOffPanel != null) fellOffPanel.SetActive(true);
-        else Debug.LogWarning("fellOffPanel is not assigned in UIScript.");
-    }
-}
 
     // Pisahkan logika resume ke fungsi sendiri agar kode lebih DRY (Don't Repeat Yourself)
     private void ResumeGameCallback()
@@ -207,5 +229,36 @@ private void ShowLosePanel(GameManager.LoseReason reason)
     {
         Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = show;
+    }
+
+    private void UpdateDistanceRuler()
+    {
+        if (player == null ||
+            finishArea == null ||
+            ruler == null ||
+            playerIcon == null)
+            return;
+
+        float currentDistance = Vector3.Distance(player.position, finishArea.position);
+
+        float progress = 1f - (currentDistance / startDistance);
+
+        progress = Mathf.Clamp01(progress);
+
+        // Simpan progress tertinggi agar icon tidak mundur
+        if (progress > maxProgress)
+        {
+            maxProgress = progress;
+
+            if (distanceAnim != null)
+                distanceAnim.TriggerMoveEffect();
+        }
+
+        float width = ruler.rect.width;
+
+        playerIcon.anchoredPosition = new Vector2(
+            width * maxProgress - width * 0.5f,
+            playerIcon.anchoredPosition.y
+        );
     }
 }
