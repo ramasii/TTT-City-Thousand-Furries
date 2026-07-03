@@ -41,6 +41,12 @@ public class UIScript : MonoBehaviour
         TimerController.OnTimeUpdated -= UpdateTimerUI;
     }
 
+    void Update()
+    {
+        UpdateEnergyUI();
+        HandlePauseInput();
+    }
+
     void Start()
     {
         if (pausePanel != null) pausePanel.SetActive(false);

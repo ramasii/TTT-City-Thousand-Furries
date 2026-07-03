@@ -43,6 +43,12 @@ public class WallRunning : MonoBehaviour
     Rigidbody rb;
     public ThirdPersonCam thirdPersonCam;
 
+    [Header("UI")]
+    [Tooltip("Bubble peringatan yang muncul di dekat Energy Bar saat wallRunEnergy hampir habis.")]
+    public EnergyWarningBubble energyWarningBubble;
+    [Tooltip("Energy Bar hanya akan aktif/terlihat selama player sedang wall-running (tanpa efek boink, langsung show/hide).")]
+    public GameObject energyBarParent;
+
     [Header("Exiting")]
     bool exitingWall;
     public float exitWallTime;
@@ -58,6 +64,12 @@ public class WallRunning : MonoBehaviour
         pm = GetComponent<PlayerMovement>();
 
         wallRunEnergy = maxWallRunEnergy;
+
+        // Pastikan Energy Bar tersembunyi di awal karena player belum wall-running
+        if (energyBarParent != null)
+        {
+            energyBarParent.SetActive(false);
+        }
     }
 
     void Update()
@@ -70,6 +82,30 @@ public class WallRunning : MonoBehaviour
             lastNormal = Vector3.zero; // reset normal dinding terakhir jika menyentuh tanah
             lastWall = null; // reset transform dinding terakhir jika menyentuh tanah
             wallRunEnergy = maxWallRunEnergy;
+        }
+
+        // Energy Bar hanya muncul selama player sedang wall-running, tanpa efek apapun
+        if (energyBarParent != null && energyBarParent.activeSelf != pm.wallRunning)
+        {
+            // Kalau Energy Bar mau dimatikan, paksa sembunyikan & reset Energy Warning Bubble juga.
+            // Tanpa ini, bubble yang lagi tampil/animasi ikut ke-nonaktifkan paksa oleh Unity (karena
+            // dia child dari Energy Bar Parent) tanpa sempat reset state -> nyangkut dan muncul lagi
+            // tiba-tiba saat Energy Bar diaktifkan ulang.
+            if (!pm.wallRunning && energyWarningBubble != null)
+            {
+                energyWarningBubble.ForceHide();
+            }
+
+            energyBarParent.SetActive(pm.wallRunning);
+        }
+
+        // Update UI peringatan energy HANYA selama player wall-running (Energy Bar sedang aktif).
+        // Kalau tidak di-guard dengan pm.wallRunning, SetEnergyPercent() masih bisa terpanggil saat
+        // Energy Bar Parent (dan bubble di dalamnya) nonaktif -> ShowWarning() coba StartCoroutine
+        // di GameObject yang activeInHierarchy-nya masih false (karena parent-nya mati) -> error.
+        if (pm.wallRunning && energyWarningBubble != null && maxWallRunEnergy > 0f)
+        {
+            energyWarningBubble.SetEnergyPercent(wallRunEnergy / maxWallRunEnergy);
         }
     }
 
