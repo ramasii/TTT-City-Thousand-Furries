@@ -18920,6 +18920,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Audio
       objectReference: {fileID: 0}
+    - target: {fileID: 6236700669945552127, guid: 3c84cee523a01814dbcfad31c3f74941, type: 3}
+      propertyPath: playerWallRun
+      value: 
+      objectReference: {fileID: 8300000, guid: fec639749bb2c6a4f97d107e20720d32, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

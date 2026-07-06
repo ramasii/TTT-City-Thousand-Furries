@@ -18,6 +18,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip uiClick;
     public AudioClip playerJump;
     public AudioClip playerRun;
+    public AudioClip playerWallRun;
     // public AudioClip playerSwing;
     public AudioClip enemyAttack;
     public AudioClip enemyTakeDamage;
